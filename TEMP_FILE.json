@@ -1,0 +1,747 @@
+{
+  "ret_code": 0,
+  "ret_msg": "SUCCESS",
+  "result": {
+    "count": 2,
+    "items": [
+      {
+        "id": "1899140896561922048",
+        "accountId": "428191401",
+        "userId": "428191399",
+        "nickName": "",
+        "tokenId": "USDT",
+        "tokenName": "USDT",
+        "currencyId": "PLN",
+        "side": 1,
+        "priceType": 0,
+        "price": "3.83",
+        "premium": "0",
+        "lastQuantity": "598.3876",
+        "quantity": "598.3876",
+        "frozenQuantity": "0",
+        "executedQuantity": "0",
+        "minAmount": "100.00",
+        "maxAmount": "3600.00",
+        "remark": "- imię nazwisko w banku = imię nazwisko w Bybit \n- weryfikacja od każdego obowiązkowo \n- chwilowo mam tylko blik \n\nTu nie mam inwestycji, zarobków, pożyczek. Nigdy nie kontaktuję poza platformą, nic nie oferuję, nie zachęcam !    proszę dzwonić +48  781972552  w metodach płatności są wpisane zawsze nowe dane - nie dostaniesz pieniędzy jeśli wysyłasz na stare dane - ЧИТАЙ ! ",
+        "status": 10,
+        "createDate": "1741625449000",
+        "payments": [
+          "14",
+          "292",
+          "147",
+          "9",
+          "22"
+        ],
+        "orderNum": 414,
+        "finishNum": 414,
+        "recentOrderNum": 0,
+        "recentExecuteRate": 0,
+        "fee": "",
+        "isOnline": false,
+        "lastLogoutTime": "0",
+        "symbolInfo": {
+          "id": "45",
+          "exchangeId": "301",
+          "orgId": "9001",
+          "tokenId": "USDT",
+          "currencyId": "PLN",
+          "status": 1,
+          "lowerLimitAlarm": 80,
+          "upperLimitAlarm": 120,
+          "itemDownRange": "80",
+          "itemUpRange": "120",
+          "currencyMinQuote": "10",
+          "currencyMaxQuote": "220000",
+          "currencyLowerMaxQuote": "10",
+          "tokenMinQuote": "1",
+          "tokenMaxQuote": "50000",
+          "kycCurrencyLimit": "0",
+          "itemSideLimit": 3,
+          "buyFeeRate": "",
+          "sellFeeRate": "",
+          "orderAutoCancelMinute": 15,
+          "orderFinishMinute": 10,
+          "tradeSide": 9,
+          "currency": {
+            "id": "35",
+            "exchangeId": "0",
+            "orgId": "9001",
+            "currencyId": "PLN",
+            "scale": 2
+          },
+          "token": {
+            "id": "1",
+            "exchangeId": "0",
+            "orgId": "9001",
+            "tokenId": "USDT",
+            "scale": 4,
+            "sequence": 1
+          },
+          "buyAd": {
+            "paymentPeriods": [
+              15,
+              30
+            ]
+          },
+          "sellAd": {
+            "paymentPeriods": [
+              15,
+              30
+            ]
+          }
+        },
+        "tradingPreferenceSet": {
+          "hasUnPostAd": 0,
+          "isKyc": 1,
+          "isEmail": 0,
+          "isMobile": 0,
+          "hasRegisterTime": 1,
+          "registerTimeThreshold": 15,
+          "orderFinishNumberDay30": 0,
+          "completeRateDay30": "0",
+          "nationalLimit": "AFG,ALB,DZA,ASM,AND,AGO,AIA,ATA,ATG,ARG,ARM,ABW,AUS,AUT,AZE,BHS,BHR,BGD,BRB,BLR,BEL,BLZ,BEN,BMU,BTN,BOL,BIH,BWA,BVT,BRA,IOT,VGB,BRN,BGR,BFA,MMR,BDI,CPV,KHM,CMR,CAN,CYM,CAF,TCD,CHL,CHN,CXR,CCK,COL,COM,COD,COG,COK,CRI,CIV,HRV,CUB,CUW,CYP,CZE,DNK,DJI,DMA,DOM,ECU,EGY,SLV,GNQ,ERI,EST,ETH,FLK,FRO,FJI,FIN,FRA,GUF,PYF,ATF,GAB,GMB,PSE,GEO,DEU,GHA,GIB,GRC,GRL,GRD,GLP,GUM,GTM,GGY,GIN,GNB,GUY,HTI,HMD,VAT,HND,HKG,HUN,ISL,IND,IDN,IRN,IRQ,IRL,IMN,ISR,ITA,JAM,JPN,JEY,JOR,KAZ,KEN,KIR,PRK,KOR,KWT,KGZ,LAO,LVA,LBN,LSO,LBR,LBY,LIE,LTU,LUX,MAC,MKD,MDG,MWI,MYS,MDV,MLI,MLT,MHL,MTQ,MRT,MUS,MYT,MEX,FSM,MDA,MCO,MNG,MNE,MSR,MAR,MOZ,NAM,NRU,NPL,NLD,NCL,NZL,NIC,NER,NGA,NIU,NFK,MNP,NOR,OMN,PAK,PLW,PAN,PNG,PRY,PER,PHL,PCN,PRT,PRI,QAT,REU,ROU,TWN,RUS,RWA,BLM,SHN,KNA,LCA,MAF,VCT,WSM,SMR,STP,SAU,SEN,SRB,SYC,SLE,SGP,SXM,SVK,SVN,SLB,SOM,ZAF,SGS,SSD,ESP,LKA,SDN,SUR,SPM,SWZ,SWE,CHE,SYR,TJK,TZA,THA,TLS,TGO,TKL,TON,TTO,TUN,TUR,TKM,TCA,TUV,UGA,UKR,ARE,GBR,USA,UMI,URY,UZB,VUT,VEN,VNM,VIR,WLF,ESH,YEM,ZMB,ZWE",
+          "hasOrderFinishNumberDay30": 0,
+          "hasCompleteRateDay30": 0,
+          "hasNationalLimit": 1
+        },
+        "paymentTerms": [
+          {
+            "id": "17280757",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 14,
+            "bankName": "+48 781972552",
+            "branchName": "to jest pekao. proszę zawsze wysyłać tylko natychmiastowy expres",
+            "accountNo": "88 1240 5442 1111 0011 5361 8104",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 14,
+              "paymentName": "Bank Transfer",
+              "paymentDialect": "payment_field_14",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                },
+                {
+                  "labelDialect": "input_field_branchName",
+                  "placeholderDialect": "input_tip_branchName",
+                  "fieldName": "branchName"
+                },
+                {
+                  "labelDialect": "input_field_bankName",
+                  "placeholderDialect": "input_tip_bankName",
+                  "fieldName": "bankName"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280798",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 292,
+            "bankName": "+48 781972552",
+            "branchName": "chwilowo mam tylko blik",
+            "accountNo": "0",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 292,
+              "paymentName": "mBank",
+              "paymentDialect": "payment_field_292",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                },
+                {
+                  "labelDialect": "input_field_branchName",
+                  "placeholderDialect": "input_tip_branchName",
+                  "fieldName": "branchName"
+                },
+                {
+                  "labelDialect": "input_field_bankName",
+                  "placeholderDialect": "input_tip_bankName",
+                  "fieldName": "bankName"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280805",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 147,
+            "bankName": "",
+            "branchName": "",
+            "accountNo": "",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "+48 781972552",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 1,
+            "paymentConfig": {
+              "paymentType": 147,
+              "paymentName": "ING",
+              "paymentDialect": "payment_field_147",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_payMessage",
+                  "placeholderDialect": "input_tip_payMessage",
+                  "fieldName": "payMessage"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280828",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 9,
+            "bankName": "+48 781972552",
+            "branchName": "chwilowo mam tylko blik",
+            "accountNo": "0",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 9,
+              "paymentName": "Alior Bank",
+              "paymentDialect": "payment_field_9",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                },
+                {
+                  "labelDialect": "input_field_branchName",
+                  "placeholderDialect": "input_tip_branchName",
+                  "fieldName": "branchName"
+                },
+                {
+                  "labelDialect": "input_field_bankName",
+                  "placeholderDialect": "input_tip_bankName",
+                  "fieldName": "bankName"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280892",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 22,
+            "bankName": "+48 781972552",
+            "branchName": "to jest inny bank ! ",
+            "accountNo": "inny bank",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 22,
+              "paymentName": "Credit Agricole",
+              "paymentDialect": "payment_field_22",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                },
+                {
+                  "labelDialect": "input_field_branchName",
+                  "placeholderDialect": "input_tip_branchName",
+                  "fieldName": "branchName"
+                },
+                {
+                  "labelDialect": "input_field_bankName",
+                  "placeholderDialect": "input_tip_bankName",
+                  "fieldName": "bankName"
+                }
+              ]
+            },
+            "realNameVerified": true
+          }
+        ],
+        "version": 2,
+        "updateDate": "1748186924000",
+        "feeRate": "0",
+        "paymentPeriod": 30,
+        "itemType": "ORIGIN",
+        "verificationOrderSwitch": false,
+        "verificationOrderLabels": [],
+        "verificationOrderAmount": "0",
+        "subsidyAd": false
+      },
+      {
+        "id": "1899183812865359872",
+        "accountId": "428191401",
+        "userId": "428191399",
+        "nickName": "",
+        "tokenId": "USDT",
+        "tokenName": "USDT",
+        "currencyId": "PLN",
+        "side": 1,
+        "priceType": 0,
+        "price": "3.83",
+        "premium": "0",
+        "lastQuantity": "598.3876",
+        "quantity": "598.3876",
+        "frozenQuantity": "0",
+        "executedQuantity": "0",
+        "minAmount": "100.00",
+        "maxAmount": "3600.00",
+        "remark": "- imię nazwisko w banku = imię nazwisko w Bybit \n- weryfikacja od każdego obowiązkowo \n- chwilowo mam tylko blik \n\nTu nie mam inwestycji, zarobków, pożyczek. Nigdy nie kontaktuję poza platformą, nic nie oferuję, nie zachęcam ! proszę dzwonić jeśli nie odpowiadam     781 972 552 - dane w metodach płatności zawsze nowe - nie dostaniesz pieniądze jeśli wysłałeś na stare dane - ЧИТАЙ ",
+        "status": 10,
+        "createDate": "1741635681000",
+        "payments": [
+          "159",
+          "154",
+          "139",
+          "133",
+          "355"
+        ],
+        "orderNum": 957,
+        "finishNum": 955,
+        "recentOrderNum": 0,
+        "recentExecuteRate": 0,
+        "fee": "",
+        "isOnline": false,
+        "lastLogoutTime": "0",
+        "symbolInfo": {
+          "id": "45",
+          "exchangeId": "301",
+          "orgId": "9001",
+          "tokenId": "USDT",
+          "currencyId": "PLN",
+          "status": 1,
+          "lowerLimitAlarm": 80,
+          "upperLimitAlarm": 120,
+          "itemDownRange": "80",
+          "itemUpRange": "120",
+          "currencyMinQuote": "10",
+          "currencyMaxQuote": "220000",
+          "currencyLowerMaxQuote": "10",
+          "tokenMinQuote": "1",
+          "tokenMaxQuote": "50000",
+          "kycCurrencyLimit": "0",
+          "itemSideLimit": 3,
+          "buyFeeRate": "",
+          "sellFeeRate": "",
+          "orderAutoCancelMinute": 15,
+          "orderFinishMinute": 10,
+          "tradeSide": 9,
+          "currency": {
+            "id": "35",
+            "exchangeId": "0",
+            "orgId": "9001",
+            "currencyId": "PLN",
+            "scale": 2
+          },
+          "token": {
+            "id": "1",
+            "exchangeId": "0",
+            "orgId": "9001",
+            "tokenId": "USDT",
+            "scale": 4,
+            "sequence": 1
+          },
+          "buyAd": {
+            "paymentPeriods": [
+              15,
+              30
+            ]
+          },
+          "sellAd": {
+            "paymentPeriods": [
+              15,
+              30
+            ]
+          }
+        },
+        "tradingPreferenceSet": {
+          "hasUnPostAd": 0,
+          "isKyc": 1,
+          "isEmail": 0,
+          "isMobile": 0,
+          "hasRegisterTime": 1,
+          "registerTimeThreshold": 15,
+          "orderFinishNumberDay30": 0,
+          "completeRateDay30": "0",
+          "nationalLimit": "AFG,ALB,DZA,ASM,AND,AGO,AIA,ATA,ATG,ARG,ARM,ABW,AUS,AUT,AZE,BHS,BHR,BGD,BRB,BLR,BEL,BLZ,BEN,BMU,BTN,BOL,BIH,BWA,BVT,BRA,IOT,VGB,BRN,BGR,BFA,MMR,BDI,CPV,KHM,CMR,CAN,CYM,CAF,TCD,CHL,CHN,CXR,CCK,COL,COM,COD,COG,COK,CRI,CIV,HRV,CUB,CUW,CYP,CZE,DNK,DJI,DMA,DOM,ECU,EGY,SLV,GNQ,ERI,EST,ETH,FLK,FRO,FJI,FIN,FRA,GUF,PYF,ATF,GAB,GMB,PSE,GEO,DEU,GHA,GIB,GRC,GRL,GRD,GLP,GUM,GTM,GGY,GIN,GNB,GUY,HTI,HMD,VAT,HND,HKG,HUN,ISL,IND,IDN,IRN,IRQ,IRL,IMN,ISR,ITA,JAM,JPN,JEY,JOR,KAZ,KEN,KIR,PRK,KOR,KWT,KGZ,LAO,LVA,LBN,LSO,LBR,LBY,LIE,LTU,LUX,MAC,MKD,MDG,MWI,MYS,MDV,MLI,MLT,MHL,MTQ,MRT,MUS,MYT,MEX,FSM,MDA,MCO,MNG,MNE,MSR,MAR,MOZ,NAM,NRU,NPL,NLD,NCL,NZL,NIC,NER,NGA,NIU,NFK,MNP,NOR,OMN,PAK,PLW,PAN,PNG,PRY,PER,PHL,PCN,PRT,PRI,QAT,REU,ROU,TWN,RWA,BLM,SHN,KNA,LCA,MAF,VCT,WSM,SMR,STP,SAU,SEN,SRB,SYC,SLE,SGP,SXM,SVK,SVN,SLB,SOM,ZAF,SGS,SSD,ESP,LKA,SDN,SUR,SPM,SWZ,SWE,CHE,SYR,TJK,TZA,THA,TLS,TGO,TKL,TON,TTO,TUN,TUR,TKM,TCA,TUV,UGA,UKR,ARE,GBR,USA,UMI,URY,UZB,VUT,VEN,VNM,VIR,WLF,ESH,YEM,ZMB,ZWE",
+          "hasOrderFinishNumberDay30": 0,
+          "hasCompleteRateDay30": 0,
+          "hasNationalLimit": 1
+        },
+        "paymentTerms": [
+          {
+            "id": "17280769",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 159,
+            "bankName": "+48 781972552",
+            "branchName": "chwilowo mam tylko blik",
+            "accountNo": "0",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 159,
+              "paymentName": "PKO Bank",
+              "paymentDialect": "payment_field_159",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                },
+                {
+                  "labelDialect": "input_field_branchName",
+                  "placeholderDialect": "input_tip_branchName",
+                  "fieldName": "branchName"
+                },
+                {
+                  "labelDialect": "input_field_bankName",
+                  "placeholderDialect": "input_tip_bankName",
+                  "fieldName": "bankName"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280774",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 154,
+            "bankName": "+48 781972552",
+            "branchName": "chwilowo mam tylko blik",
+            "accountNo": "0",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 154,
+              "paymentName": "Millenium",
+              "paymentDialect": "payment_field_154",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                },
+                {
+                  "labelDialect": "input_field_branchName",
+                  "placeholderDialect": "input_tip_branchName",
+                  "fieldName": "branchName"
+                },
+                {
+                  "labelDialect": "input_field_bankName",
+                  "placeholderDialect": "input_tip_bankName",
+                  "fieldName": "bankName"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280782",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 139,
+            "bankName": "+48 781972552",
+            "branchName": "chwilowo mam tylko blik",
+            "accountNo": "0",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 139,
+              "paymentName": "BNP Paribas",
+              "paymentDialect": "payment_field_139",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                },
+                {
+                  "labelDialect": "input_field_branchName",
+                  "placeholderDialect": "input_tip_branchName",
+                  "fieldName": "branchName"
+                },
+                {
+                  "labelDialect": "input_field_bankName",
+                  "placeholderDialect": "input_tip_bankName",
+                  "fieldName": "bankName"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280788",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 133,
+            "bankName": "",
+            "branchName": "",
+            "accountNo": "+48 781972552",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 133,
+              "paymentName": "Santander Poland",
+              "paymentDialect": "payment_field_133",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                }
+              ]
+            },
+            "realNameVerified": true
+          },
+          {
+            "id": "17280836",
+            "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+            "paymentType": 355,
+            "bankName": "",
+            "branchName": "",
+            "accountNo": "88 1240 5442 1111 0011 5361 8104",
+            "qrcode": "",
+            "visible": 1,
+            "payMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "secondLastName": "",
+            "clabe": "",
+            "debitCardNumber": "",
+            "mobile": "",
+            "businessName": "",
+            "concept": "",
+            "paymentExt1": "",
+            "paymentExt2": "",
+            "paymentExt3": "",
+            "paymentExt4": "",
+            "paymentExt5": "",
+            "paymentExt6": "",
+            "paymentTemplateVersion": 2,
+            "paymentConfig": {
+              "paymentType": 355,
+              "paymentName": "Bank Pekao",
+              "paymentDialect": "payment_field_Pekao",
+              "paymentTemplateItem": [
+                {
+                  "labelDialect": "input_field_realName",
+                  "placeholderDialect": "input_tip_realName",
+                  "fieldName": "realName"
+                },
+                {
+                  "labelDialect": "input_field_accountNo",
+                  "placeholderDialect": "input_tip_accountNo",
+                  "fieldName": "accountNo"
+                }
+              ]
+            },
+            "realNameVerified": true
+          }
+        ],
+        "version": 2,
+        "updateDate": "1748180848000",
+        "feeRate": "0",
+        "paymentPeriod": 30,
+        "itemType": "ORIGIN",
+        "verificationOrderSwitch": false,
+        "verificationOrderLabels": [],
+        "verificationOrderAmount": "0",
+        "subsidyAd": false
+      }
+    ],
+    "hiddenFlag": false
+  },
+  "ext_code": "",
+  "ext_info": {},
+  "time_now": "1748190176.857242"
+}

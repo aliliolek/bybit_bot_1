@@ -1,0 +1,122 @@
+{
+  "17280769": {
+    "paymentType": "159",
+    "paymentName": "PKO Bank",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "0",
+    "bankName": "+48 781972552",
+    "branchName": "chwilowo mam tylko blik",
+    "payMessage": "",
+    "id": "17280769",
+    "visible": 1,
+    "verified": true
+  },
+  "17280774": {
+    "paymentType": "154",
+    "paymentName": "Millenium",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "0",
+    "bankName": "+48 781972552",
+    "branchName": "chwilowo mam tylko blik",
+    "payMessage": "",
+    "id": "17280774",
+    "visible": 1,
+    "verified": true
+  },
+  "17280782": {
+    "paymentType": "139",
+    "paymentName": "BNP Paribas",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "0",
+    "bankName": "+48 781972552",
+    "branchName": "chwilowo mam tylko blik",
+    "payMessage": "",
+    "id": "17280782",
+    "visible": 1,
+    "verified": true
+  },
+  "17280788": {
+    "paymentType": "133",
+    "paymentName": "Santander Poland",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "+48 781972552",
+    "bankName": "",
+    "branchName": "",
+    "payMessage": "",
+    "id": "17280788",
+    "visible": 1,
+    "verified": true
+  },
+  "17280757": {
+    "paymentType": "14",
+    "paymentName": "Bank Transfer",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "88 1240 5442 1111 0011 5361 8104",
+    "bankName": "+48 781972552",
+    "branchName": "to jest pekao. proszę zawsze wysyłać tylko natychmiastowy expres",
+    "payMessage": "",
+    "id": "17280757",
+    "visible": 1,
+    "verified": true
+  },
+  "17280798": {
+    "paymentType": "292",
+    "paymentName": "mBank",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "0",
+    "bankName": "+48 781972552",
+    "branchName": "chwilowo mam tylko blik",
+    "payMessage": "",
+    "id": "17280798",
+    "visible": 1,
+    "verified": true
+  },
+  "17280805": {
+    "paymentType": "147",
+    "paymentName": "ING",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "",
+    "bankName": "",
+    "branchName": "",
+    "payMessage": "+48 781972552",
+    "id": "17280805",
+    "visible": 1,
+    "verified": true
+  },
+  "17280828": {
+    "paymentType": "9",
+    "paymentName": "Alior Bank",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "0",
+    "bankName": "+48 781972552",
+    "branchName": "chwilowo mam tylko blik",
+    "payMessage": "",
+    "id": "17280828",
+    "visible": 1,
+    "verified": true
+  },
+  "17280892": {
+    "paymentType": "22",
+    "paymentName": "Credit Agricole",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "inny bank",
+    "bankName": "+48 781972552",
+    "branchName": "to jest inny bank ! ",
+    "payMessage": "",
+    "id": "17280892",
+    "visible": 1,
+    "verified": true
+  },
+  "17280836": {
+    "paymentType": "355",
+    "paymentName": "Bank Pekao",
+    "realName": "Bobrowe sprawy Oleksii Pishchuhin ",
+    "accountNo": "88 1240 5442 1111 0011 5361 8104",
+    "bankName": "",
+    "branchName": "",
+    "payMessage": "",
+    "id": "17280836",
+    "visible": 1,
+    "verified": true
+  }
+}
