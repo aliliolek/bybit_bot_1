@@ -157,7 +157,7 @@ def process_active_orders(api, config, side: str):
 
             if status == 20 and not log["msg_status_20_sent"]:
                 logging.info(f"Sending status_20 message for order {order_id}")
-                messages = config["messages"].get("status_10", {}).get(side, {})
+                messages = config["messages"].get("status_20", {}).get(side, {})
                 if messages:
                     send_multilang_messages(api, order_id, messages)
                     update_order_flag(supabase, order_id, "msg_status_20_sent", True)
