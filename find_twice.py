@@ -20,6 +20,11 @@ def _is_ad_acceptable(ad: dict, side_config: dict) -> bool:
     # --- ЄДИНИЙ ЦЕНТР УСІХ ПРАВИЛ ВАЛІДАЦІЇ ---
     ALL_RULES = [
         {
+            'name': 'Minimum Total Orders',
+            'is_active': lambda ad, cfg: cfg.get('check_orderNum', False),
+            'is_valid': lambda ad, cfg: ad.get('recentOrderNum', 0) > cfg.get('min_total_orders', 0),
+        },
+        {
             'name': 'Payment Methods',
             'is_active': lambda ad, cfg: cfg.get('check_payment_methods', False),
             'is_valid': lambda ad, cfg: (
@@ -85,6 +90,18 @@ def _is_ad_acceptable(ad: dict, side_config: dict) -> bool:
                 for word in cfg.get('remark_blacklist', [])
             ),
         },
+              {
+            'name': 'Nickname Blacklist',
+            'is_active': lambda ad, cfg: cfg.get('check_exclude_nicknames', False),
+            'is_valid': lambda ad, cfg: ad.get('nickName') not in cfg.get('exclude_nicknames', []),
+        },
+        {
+            'name': 'Min Price Delta from BUY (SELL only)',
+            'is_active': lambda ad, cfg: cfg.get('check_sell_vs_buy_gap', False) and cfg.get('side') == 'SELL',
+            'is_valid': lambda ad, cfg: (
+                float(ad.get("price", 0)) >= float(cfg.get("reference_buy_price", 0)) * (1 + cfg.get("min_gap_percent", 0.015))
+            ),
+        },
     ]
 
     # --- УНІВЕРСАЛЬНИЙ РУШІЙ ВАЛІДАЦІЇ ---
@@ -100,16 +117,27 @@ def _find_neighbor_price(ad_to_check: dict, all_ads: list, gap: float, side_code
     """Перевіряє, чи має дане оголошення відповідного сусіда у списку."""
     ad_price = float(ad_to_check['price'])
     ad_owner = ad_to_check['nickName']
+    found = False
 
     for neighbor_ad in all_ads:
         if neighbor_ad['nickName'] == ad_owner:
             continue
         neighbor_price = float(neighbor_ad['price'])
-        if side_code == 1 and neighbor_price > ad_price and (neighbor_price - ad_price) <= gap:
-            return True
-        elif side_code == 0 and neighbor_price < ad_price and (ad_price - neighbor_price) <= gap:
-            return True
-    return False
+
+        if side_code == 1 and neighbor_price >= ad_price and (neighbor_price - ad_price) <= gap:
+            print(f"[NEIGHBOR] {ad_owner} ({ad_price}) ↔ {neighbor_ad['nickName']} ({neighbor_price})")
+            found = True
+            break
+        elif side_code == 0 and neighbor_price <= ad_price and (ad_price - neighbor_price) <= gap:
+            print(f"[NEIGHBOR] {ad_owner} ({ad_price}) ↔ {neighbor_ad['nickName']} ({neighbor_price})")
+            found = True
+            break
+
+    if not found:
+        print(f"[NO NEIGHBOR] {ad_owner} ({ad_price})")
+
+    return found
+
 
 def _find_price_in_list(list_to_search: list, all_ads: list, gap: float, side_code: int) -> float | None:
     """
@@ -132,7 +160,10 @@ def find_price_from_config(ads_list: list, config: dict, side: str) -> float:
     filtered_ads = [ad for ad in ads_list if _is_ad_acceptable(ad, side_config)]
     print("Пройшло фільтрацію:")
     for ad in filtered_ads:
-        print(f"{ad['nickName']} за {ad['price']}")
+        if ad["nickName"] == "Sunnygirl":
+          print({k: ad[k] for k in ["orderNum", "finishNum", "recentOrderNum"]})
+
+        # print(f"{ad['nickName']} orders {ad['orderNum']} за {ad['price']}")
 
     if not filtered_ads:
         print("Фільтр не пройдено. Повертаємо fallback.")

@@ -1,0 +1,227 @@
+# config.yaml
+
+p2p:
+  my_uid: 428191399
+  token: 'USDT'
+  currency: 'PLN'
+  page_size: '50'
+  total: 2830
+  side_codes:
+    BUY: 0
+    SELL: 1
+
+bybit:
+  api_key: ${BYBIT_API_KEY}
+  api_secret: ${BYBIT_API_SECRET}
+  testnet: false
+
+telegram:
+  token: ${TELEGRAM_TOKEN}
+  chat_id: ${TELEGRAM_CHAT_ID}
+
+supabase:
+  url: ${SUPABASE_URL}
+  api_key: ${SUPABASE_KEY}
+
+pricing:
+  price_offset: 0.01
+  low_balance_threshold: 100.0
+  low_balance_discount: 0.1
+  price_gap: 0.05 # <-- для логіки пошуку сусіда
+
+BUY: #
+  fixed_price: null
+  fallback_price: 3.3
+  check_remark_blacklist: true
+  remark_blacklist:
+    # General
+    - 'доверен'
+    - 'trusted'
+    - 'powiernik'
+    - 'довірен'
+    - 'лимит'
+    - 'ліміт'
+    - 'limit'
+    - 'карта'
+    - 'картка'
+    - 'karta'
+    - 'card'
+    - 'муж'
+    - 'жен'
+    - 'мам'
+    - 'пап'
+    - 'брат'
+    - 'сестр'
+    - 'друг'
+    - 'подруг'
+    - 'знаком'
+    - 'родствен'
+    - 'чоловік'
+    - 'дружин'
+    - 'знайом'
+    - 'род'
+    - 'mąż'
+    - 'żon'
+    - 'matk'
+    - 'ojc'
+    - 'siostr'
+    - 'koleg'
+    - 'przyjaciol'
+    - 'ziomek'
+    - 'ziomk'
+    - 'znajom'
+    - 'krewn'
+
+  check_orderNum: true
+  min_total_orders: 300
+
+  check_payment_methods: true
+  min_payment_matches: 3 # але не більше ніж кількість способів оплати
+  allowed_payment_types:
+    - '159'
+    # - '154'
+    # - '139'
+    # - '133'
+    # - '14'
+    # - '292'
+    # - '147'
+    # - '9'
+    # - '22'
+    # - '355'
+
+  check_min_balance: true
+  min_amount_threshold: 800
+
+  check_min_limit: true
+  min_limit_threshold: 500
+
+  check_register_days: true
+  min_register_days: 31
+
+  check_min_orders: true
+  min_order_count: 20
+
+  # різниця між MAX і MIN сумою ордеру більше 500 зл
+  check_limit_range: true
+  min_limit_range: 500
+
+  check_target_nicknames: true
+  target_nicknames:
+    - 'Rezak'
+    - 'MAKHMUDOV'
+    - 'KryptoLady'
+    - 'Matvey 1975'
+    - 'Srgcr'
+    - 'Lec_go'
+    - 'Bvolegrad'
+    - 'yanpinch'
+    - 'DaniilGruz'
+    - 'KaLaMuT'
+    - 'lamzlo'
+    - 'Lookitthisovich'
+    - 'ExpressTransfer'
+    - 'frocka'
+    - 'VersaComp'
+
+  check_exclude_nicknames: true
+  exclude_nicknames:
+    - 'MaxonCrypto'
+
+  check_price_neighbors: true
+
+  country_whitelist:
+    - 'UA'
+
+SELL: #
+  # ця умова є головною і якщо немає BUY оголошення то цю перевірку необхідно вимкнути!
+  check_sell_vs_buy_gap: true
+  reference_buy_price: 3.3 # сюди передається актуальна BUY ціна
+  min_gap_percent: 0.011 # 1.1%
+
+  fixed_price: null
+  fallback_price: 4.40
+
+  check_orderNum: true
+  min_total_orders: 100
+
+  check_payment_methods: true
+  min_payment_matches: 3 # але не більше ніж кількість способів оплати
+  allowed_payment_types:
+    - '159'
+    - '154'
+    - '139'
+    - '133'
+    - '14'
+    - '292'
+    - '147'
+    - '9'
+    - '22'
+    - '355'
+
+  check_min_balance: true
+  min_amount_threshold: 800
+
+  check_min_limit: true
+  min_limit_threshold: 500
+
+  check_register_days: true
+  min_register_days: 100
+
+  check_min_orders: true
+  min_order_count: 60
+
+  # різниця між MAX і MIN сумою ордеру більше 500 зл
+  check_limit_range: true
+  min_limit_range: 500
+
+  check_target_nicknames: false
+  target_nicknames:
+    - 'Rezak'
+    - 'FastchangeUA'
+    - 'KryptoLady'
+    - 'Matvey 1975'
+    - 'Srgcr'
+    - 'Lec_go'
+    - 'Bvolegrad'
+    - 'yanpinch'
+    - 'DaniilGruz'
+    - 'KaLaMuT'
+    - 'lamzlo'
+    - 'Lookitthisovich'
+    - 'frocka'
+    - 'VersaComp'
+
+  check_exclude_nicknames: true
+  exclude_nicknames:
+    - 'MaxonCrypto'
+
+  check_price_neighbors: true
+
+  country_whitelist:
+    - 'UA'
+
+messages:
+  status_10:
+    BUY:
+      PL: 'Cześć, żeby poprawnie wykonać przelew, potrzebuję od ciebie numer konta, numer telefonu powiązany z BLIK oraz imię i nazwisko (łacinką).'
+      UA: "Привіт! Щоб успішно виконати переказ, надай: номер рахунку, номер телефону (підключений до BLIK), ім'я та прізвище латинкою."
+      RU: 'Привет. Чтобы перевести деньги, мне нужны: номер счёта, номер телефона (BLIK), имя и фамилия латиницей.'
+      EN: 'Hi. To complete the transfer, I need your account number, phone number (BLIK), and full name (łacinką)'
+    SELL:
+      PL: 'Cześć, dane płatności są zawsze aktualne. Wyjdź z czatu, kliknij przycisk PŁAĆ, przepisz dane i wykonaj przelew ręcznie.'
+      UA: 'Привіт, дані для переказу завжди актуальні. Вийди з чату, натисни ПЛАТИТИ, скопіюй реквізити й виконай переказ вручну.'
+      RU: 'Привет. Данные для оплаты всегда актуальны. Выйди из чата, нажми ПЛАТИТЬ и переведи вручную.'
+      EN: 'Hi. Payment details are always up to date. Leave the chat, press PAY, copy the info and make the transfer manually. NO 3rd parties'
+
+  status_20:
+    BUY:
+      PL: 'Oznaczyłem jako opłacone, ale jeszcze nie zapłaciłem. Jeśli dane nie są pełne, podaj: numer konta, telefon, imię i nazwisko (łacinką).'
+      UA: 'Я натиснув «оплачено», але ще не платив. Якщо вказано не всі дані — прошу номер рахунку, телефон і ім’я латинкою.'
+      RU: 'Я нажал «оплачено», но ещё не платил. Если данных нет — напиши счёт, телефон, имя и фамилию латиницей.'
+      EN: "I clicked Paid but haven't paid yet. If info is missing, please send account number, phone and full name (łacinką)"
+
+    SELL:
+      PL: 'Dziękuję za oznaczenie. Aby sprawdzić przelew, potrzebuję PDF potwierdzenia i twój numer telefonu. Inaczej zwrócę środki.'
+      UA: 'Дякую за позначку. Щоб перевірити зарахування, мені потрібен PDF-квитанція та номер телефону. Інакше поверну гроші.'
+      RU: 'Спасибо за отметку. Чтобы проверить перевод, мне нужен PDF-квитанция и номер телефона. Иначе верну деньги.'
+      EN: 'Thanks for marking paid. I need PDF receipt and your phone number. Otherwise, I’ll refund manually.'

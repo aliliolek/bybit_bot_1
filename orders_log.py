@@ -1,13 +1,10 @@
 import logging
+import os
 from pprint import pprint
 from typing import Dict
 import uuid
 from supabase import create_client
 from config import config
-
-url = config["supabase"]["url"]
-key = config["supabase"]["api_key"]
-supabase = create_client(url, key)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -44,7 +41,51 @@ def update_order_flag(supabase, order_id: str, field: str, value: bool):
     logging.info(f"Updating order {order_id}: setting {field} = {value}")
     supabase.table("orders_log").update({field: value}).eq("order_id", order_id).execute()
 
-def process_active_orders(api, side: str):
+def send_tutorial_photos_for_sell(api, order_id: str):
+    photo_dir = "./data/buy_tutorial_photo"
+    for i in range(1, 9):
+        filename = f"step_{i}.jpg"
+        filepath = os.path.join(photo_dir, filename)
+        if not os.path.isfile(filepath):
+            logging.warning(f"[SELL PHOTOS] File not found: {filepath}")
+            continue
+
+        try:
+            upload_response = api.upload_chat_file(upload_file=filepath)
+            file_url = upload_response["result"]["url"]
+
+            send_response = api.send_chat_message(
+                message=file_url,
+                contentType="pic",
+                orderId=order_id,
+                msgUuid=uuid.uuid4().hex,
+                fileName=filename
+            )
+            logging.info(f"[SELL PHOTOS] Sent {filename}, response: {send_response}")
+        except Exception as e:
+            logging.exception(f"[SELL PHOTOS] Failed to send {filename}: {e}")
+
+def send_multilang_messages(api, order_id: str, message_dict: Dict[str, str]):
+    """Send the same message in all provided languages to the order chat."""
+    for lang, message in message_dict.items():
+        if not message:
+            continue
+        try:
+            resp = api.send_chat_message(
+                message=message,
+                contentType="str",
+                orderId=order_id,
+                msgUuid=uuid.uuid4().hex
+            )
+            logging.info(f"[{lang}] Sent message to order {order_id}, response: {resp}")
+        except Exception as e:
+            logging.exception(f"[{lang}] Failed to send message to order {order_id}: {e}")
+
+def process_active_orders(api, config, side: str):
+    url = config["supabase"]["url"]
+    key = config["supabase"]["api_key"]
+    supabase = create_client(url, key)
+
     logging.info(f"Processing active orders for side: {side}")
     try:
         response = api.get_pending_orders(
@@ -76,16 +117,14 @@ def process_active_orders(api, side: str):
              f"marked_paid={log.get('marked_paid')}")
 
             if status == 10 and not log["msg_status_10_sent"]:
+                if side == "SELL":
+                  send_tutorial_photos_for_sell(api, order_id)
+
+
                 logging.info(f"Sending status_10 message for order {order_id}")
-                message = config["messages"].get("status_10", {}).get(side, {}).get("EN", "")
-                if message:
-                    resp = api.send_chat_message(
-                        message=message,
-                        contentType="str",
-                        orderId=order_id,
-                        msgUuid=uuid.uuid4().hex
-                    )
-                    logging.info(f"Chat message sent, response: {resp}")
+                messages = config["messages"].get("status_10", {}).get(side, {})
+                if messages:
+                    send_multilang_messages(api, order_id, messages)
                     update_order_flag(supabase, order_id, "msg_status_10_sent", True)
 
             if side == "BUY" and status == 10 and not log["marked_paid"]:
@@ -118,15 +157,9 @@ def process_active_orders(api, side: str):
 
             if status == 20 and not log["msg_status_20_sent"]:
                 logging.info(f"Sending status_20 message for order {order_id}")
-                message = config["messages"].get("status_20", {}).get(side, {}).get("EN", "")
-                if message:
-                    resp = api.send_chat_message(
-                        message=message,
-                        contentType="str",
-                        orderId=order_id,
-                        msgUuid=uuid.uuid4().hex
-                    )
-                    logging.info(f"Chat message sent, response: {resp}")
+                messages = config["messages"].get("status_10", {}).get(side, {})
+                if messages:
+                    send_multilang_messages(api, order_id, messages)
                     update_order_flag(supabase, order_id, "msg_status_20_sent", True)
 
         except Exception as e:

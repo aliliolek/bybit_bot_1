@@ -1,22 +1,22 @@
 import asyncio
-import json
 import logging
 from pprint import pprint
-import time
-import uuid
-from ads import exclude_own_ads, fetch_market_ads, get_available_balance, get_buy_balance, update_buy_ads, update_sell_ads
+from ads import fetch_market_ads, update_buy_ads, update_sell_ads
 from api_client import get_api
-from config import config
 from find_twice import find_price_from_config
-from orders import get_pending_orders, process_all_buy_orders, process_all_sell_orders
 from orders_log import process_active_orders
-from pricing import get_limit_price
-from test import test_function
-from utils import load_payment_type_to_name
 import asyncio
 from telegram_bot import run_bot, running_flags
+from telegram_bot import config_state as config
 
-api = get_api()
+# 🔐 Перевірка, що ключі є
+try:
+    print("[CONFIG] Bybit config loaded:")
+except KeyError:
+    print("[FATAL] Missing 'bybit' config. Please upload config.yaml via Telegram.")
+    exit(1)
+
+api = get_api(config)
 
 async def main_loop(api):
     while True:
@@ -25,16 +25,20 @@ async def main_loop(api):
             continue
 
         try:
-            for side in ["BUY", "SELL"]:
-                ads = fetch_market_ads(api, side)
-                price = find_price_from_config(ads, config, side)
+            # --- BUY ---
+            buy_ads = fetch_market_ads(api, "BUY", config)
+            buy_price = find_price_from_config(buy_ads, config, "BUY")
+            update_buy_ads(api, config, new_price=round(buy_price + 0.01, 2))
+            process_active_orders(api, config, "BUY")
 
-                if side == "SELL":
-                    update_sell_ads(api, new_price=round(price - 0.01, 2))
-                elif side == "BUY":
-                    update_buy_ads(api, new_price=round(price + 0.01, 2))
+            # Передаємо BUY-ціну в SELL-конфіг
+            config["SELL"]["reference_buy_price"] = buy_price
 
-                process_active_orders(api, side)
+            # --- SELL ---
+            sell_ads = fetch_market_ads(api, "SELL", config)
+            sell_price = find_price_from_config(sell_ads, config, "SELL")
+            update_sell_ads(api, config, new_price=round(sell_price - 0.01, 2))
+            process_active_orders(api, config, "SELL")
 
         except Exception as e:
             print(f"[!] Error in loop: {e}")

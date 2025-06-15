@@ -2,20 +2,7 @@ import logging
 from logging import config
 import uuid
 
-def get_pending_orders(api, side: int) -> list:
-    """
-    Get pending orders for a specific side (0 = BUY, 1 = SELL)
-    """
-    response = api.get_pending_orders(
-        page=1,
-        size=10,
-        tokenId="USDT",
-        side=side
-    )
-    return [
-        order for order in response.get("result", {}).get("items", [])
-        if order.get("side") == side and "id" in order
-    ]
+
 
 def get_order_details(api, order_id: str) -> dict:
     response = api.get_order_details(orderId=order_id)
