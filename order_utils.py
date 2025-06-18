@@ -1,5 +1,7 @@
 
+import json
 import logging
+import os
 import re
 from typing import Optional
 import uuid
@@ -33,63 +35,59 @@ def extract_polish_phone(text: str) -> Optional[str]:
         return digits[2:]
     return None
 
-def extract_payment_info(api, order_id: str) -> dict:
-    try:
-        response = api.get_order_details(orderId=order_id)
-        result = response.get("result", {})
-    except Exception as e:
-        logging.exception(f"[EXTRACT] Failed to get order details for {order_id}: {e}")
-        return {}
+def extract_payment_info(order: dict, direction: str) -> dict:
+    fields = ["bankName", "branchName", "accountNo", "payMessage"]
+    terms = order.get("paymentTermList", [])
 
-    # Перевірка типу ордера (має бути BUY)
-    if result.get("side") != 0:
-        logging.info(f"[EXTRACT] Order {order_id} is not a BUY order, skipping")
-        return {}
+    term = None
 
-    term = result.get("confirmedPayTerm", {})
-    if not term or not any(term.values()):
-        term_list = result.get("paymentTermList", [])
-        if term_list and isinstance(term_list[0], dict):
-            term = term_list[0]
-    payment_name = term.get("paymentConfigVo", {}).get("paymentName", None)
+    if direction == "SELL":
+        # only PKO Bank / Bank Transfer
+        for t in terms:
+            name = t.get("paymentConfigVo", {}).get("paymentName", "")
+            if name in ["PKO Bank", "Bank Transfer"]:
+                term = t
+                break
+    else:  # BUY
+        if terms:
+            term = terms[0]
 
-    # Список полів, які потрібно перевірити
-    fields_to_check = [
-        "accountNo", "bankName", "branchName", "businessName", "clabe",
-        "concept", "debitCardNumber", "firstName", "lastName", "mobile", "payMessage"
-    ]
+    if not term:
+        return {
+            "bank": "Not Found",
+            "phone": "Not Found",
+            "full_name": "Not Found",
+            "iban": "Not Found",
+            "order_id": f"#{order['id']}" if "id" in order else "Not Found",
+        }
 
-    # Витяг текстів усіх полів
-    raw_fields = [term.get(field, "") for field in fields_to_check]
+    def find_iban():
+        for f in fields:
+            v = term.get(f, "")
+            result = extract_iban(v)
+            if result:
+                return result
+        return "Not Found"
 
-    # Пошук номеру рахунку (iban)
-    iban = None
-    for field in raw_fields:
-        iban = extract_iban(field)
-        if iban:
-            break
-
-    # Пошук номеру телефону
-    phone = None
-    for field in raw_fields:
-        phone = extract_polish_phone(field)
-        if phone:
-            break
-
-    # Повне ім’я латинкою
-    raw_name = term.get("realName", "")
-    full_name = translit(raw_name)
+    def find_phone():
+        for f in fields:
+            v = term.get(f, "")
+            result = extract_polish_phone(v)
+            if result:
+                return result
+        return "Not Found"
 
     return {
-        "bank": payment_name,
-        "phone": phone,
-        "full_name": full_name,
-        "iban": iban,
-        "order_id": order_id
+        "bank": term.get("paymentConfigVo", {}).get("paymentName", "Not Found"),
+        "phone": find_phone(),
+        "full_name": translit(term.get("realName", "").strip()) or "Not Found",
+        "iban": find_iban(),
+        "order_id": f"#{order['id']}" if "id" in order else "Not Found",
     }
 
-def send_payment_info_to_chat_buy(api, info: dict):
-    order_id = info.get("order_id")
+
+
+def send_payment_info_to_chat(api, order_id, info: dict):
     if not order_id:
         logging.warning("[CHAT] No order_id in info")
         return
@@ -106,3 +104,22 @@ def send_payment_info_to_chat_buy(api, info: dict):
             logging.info(f"[CHAT] Sent {key} → {message}")
         except Exception as e:
             logging.exception(f"[CHAT] Failed to send {key}: {e}")
+
+
+def append_order_details(order_result: dict, filename: str = "oRDERdetAILS.json"):
+    # Якщо файл існує — зчитай поточний вміст
+    if os.path.exists(filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = []
+    else:
+        data = []
+
+    # Додай новий ордер
+    data.append(order_result)
+
+    # Запиши назад
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)

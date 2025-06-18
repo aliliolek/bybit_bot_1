@@ -5,7 +5,7 @@ from typing import Dict
 import uuid
 from supabase import create_client
 from config import config
-from order_utils import extract_payment_info, send_payment_info_to_chat_buy
+from order_utils import append_order_details, extract_payment_info, send_payment_info_to_chat
 
 logging.basicConfig(level=logging.INFO)
 
@@ -109,6 +109,11 @@ def process_active_orders(api, config, side: str):
         try:
             order_id = order["id"]
             status = order["status"]
+
+            # extracting and sending payment info to BUY order chat
+            order_details = api.get_order_details(orderId=order_id)["result"]
+            payment_info = extract_payment_info(order_details, side)
+
             logging.info(f"Handling order {order_id} with status {status}")
             log = get_or_create_order_log(supabase, order)
 
@@ -118,15 +123,16 @@ def process_active_orders(api, config, side: str):
              f"marked_paid={log.get('marked_paid')}")
 
             if status == 10 and not log["msg_status_10_sent"]:
-                if side == "SELL":
-                  send_tutorial_photos_for_sell(api, order_id)
+              # send_tutorial_photos_for_sell(api, order_id)
+              if not log["marked_paid"]:
+                send_payment_info_to_chat(api, order_id, payment_info)
 
+              logging.info(f"Sending status_10 message for order {order_id}")
+              messages = config["messages"].get("status_10", {}).get(side, {})
 
-                logging.info(f"Sending status_10 message for order {order_id}")
-                messages = config["messages"].get("status_10", {}).get(side, {})
-                if messages:
-                    # send_multilang_messages(api, order_id, messages)
-                    update_order_flag(supabase, order_id, "msg_status_10_sent", True)
+              if messages:
+                # send_multilang_messages(api, order_id, messages)
+                update_order_flag(supabase, order_id, "msg_status_10_sent", True)
 
             if side == "BUY" and status == 10 and not log["marked_paid"]:
               logging.info(f"Marking order {order_id} as paid")
@@ -140,10 +146,6 @@ def process_active_orders(api, config, side: str):
                   if not payment_terms:
                       logging.error(f"[!] No payment terms found for order {order_id}, skipping mark_as_paid")
                       return
-
-                  # extracting and sending payment info to BUY order chat
-                  payment_info = extract_payment_info(api, order_id)
-                  send_payment_info_to_chat_buy(api, payment_info)
 
                   term = payment_terms[0]
                   response = api.mark_as_paid(

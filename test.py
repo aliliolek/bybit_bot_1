@@ -5,18 +5,22 @@ from config import config
 import json
 from translitua import translit
 
+from order_utils import extract_payment_info
+
 api = get_api(config)
 
 def test_function():
-        # response = api.get_pending_orders(
-        #     page=1,
-        #     size=10,
-        #     tokenId=config["p2p"]["token"],
-        #     side=config["p2p"]["side_codes"]["BUY"]
-        # )
-        # orders = response.get("result", {}).get("items", [])
-        # pprint(orders)
-        pprint(api.get_order_details(orderId="1935333440879173632"))
+  # завантажуємо масив ордерів
+  with open("oRDERdetAILS.json", "r", encoding="utf-8") as f:
+      orders = json.load(f)
+
+  for i, order in enumerate(orders):
+      direction = "BUY" if order.get("side") == 0 else "SELL"
+      result = extract_payment_info(order, direction)
+
+      print(f"\n--- Order {i+1} ---")
+      print(f"ID: {order.get('id')}")
+      print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 
