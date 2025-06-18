@@ -5,6 +5,7 @@ from typing import Dict
 import uuid
 from supabase import create_client
 from config import config
+from order_utils import extract_payment_info, send_payment_info_to_chat_buy
 
 logging.basicConfig(level=logging.INFO)
 
@@ -124,7 +125,7 @@ def process_active_orders(api, config, side: str):
                 logging.info(f"Sending status_10 message for order {order_id}")
                 messages = config["messages"].get("status_10", {}).get(side, {})
                 if messages:
-                    send_multilang_messages(api, order_id, messages)
+                    # send_multilang_messages(api, order_id, messages)
                     update_order_flag(supabase, order_id, "msg_status_10_sent", True)
 
             if side == "BUY" and status == 10 and not log["marked_paid"]:
@@ -140,8 +141,11 @@ def process_active_orders(api, config, side: str):
                       logging.error(f"[!] No payment terms found for order {order_id}, skipping mark_as_paid")
                       return
 
-                  term = payment_terms[0]
+                  # extracting and sending payment info to BUY order chat
+                  payment_info = extract_payment_info(api, order_id)
+                  send_payment_info_to_chat_buy(api, payment_info)
 
+                  term = payment_terms[0]
                   response = api.mark_as_paid(
                       orderId=str(order_id),
                       paymentType=str(term["paymentType"]),
@@ -159,7 +163,7 @@ def process_active_orders(api, config, side: str):
                 logging.info(f"Sending status_20 message for order {order_id}")
                 messages = config["messages"].get("status_20", {}).get(side, {})
                 if messages:
-                    send_multilang_messages(api, order_id, messages)
+                    # send_multilang_messages(api, order_id, messages)
                     update_order_flag(supabase, order_id, "msg_status_20_sent", True)
 
         except Exception as e:
