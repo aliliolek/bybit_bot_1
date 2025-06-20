@@ -6,20 +6,19 @@ logger = logging.getLogger(__name__)
 
 ads_cache = {}
 
-def get_pending_orders(api, side: int) -> list:
+def get_pending_orders(api, config: Dict) -> list:
     """
     Get pending orders for a specific side (0 = BUY, 1 = SELL)
     """
     response = api.get_pending_orders(
         page=1,
         size=10,
-        tokenId="USDT",
-        side=side
+        tokenId=config["p2p"]["token"],
     )
-    return [
-        order for order in response.get("result", {}).get("items", [])
-        if order.get("side") == side and "id" in order
-    ]
+
+    response = response["result"]["items"]
+
+    return response
 
 def exclude_own_ads(ads: List[Dict], my_uid: str) -> List[Dict]:
     return [ad for ad in ads if str(ad.get("userId", "")) != str(my_uid)]
@@ -144,16 +143,13 @@ def get_buy_balance(api, config: Dict) -> float:
         total = float(config["p2p"]["total"])
         token = config["p2p"]["token"]
         transfer_balance = get_available_balance(api, token)
-
-        orders = get_pending_orders(api, 0)
-
+        orders = get_pending_orders(api, config)
         active_volume = sum(
-            float(o.get("quantity", 0)) for o in orders
-            if o.get("status") not in [3, 5]
+            float(o.get("notifyTokenQuantity", 0)) for o in orders
         )
 
         available_balance = max(total - transfer_balance - active_volume, 0)
-        print(f"AVAILABLE BUY balance:{available_balance}")
+        print(f"(total) {total} - (transfer balance) {transfer_balance} - (active volume ){active_volume} = (available balance){available_balance}")
         return int(available_balance) 
         
     except Exception as e:
