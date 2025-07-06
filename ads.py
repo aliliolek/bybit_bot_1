@@ -65,7 +65,21 @@ def get_my_ads(api, config, side: str) -> List[Dict]:
         logger.error(f"Failed to fetch my {side} ads: {e}")
         return []
 
-def get_available_balance(api, token: str) -> float:
+def is_auto_ad(ad: Dict, side: str) -> bool:
+    tag = "#B" if side.upper() == "BUY" else "#S"
+    expected_side = 0 if side.upper() == "BUY" else 1
+    return ad.get("side") == expected_side and str(ad.get("remark", "")).startswith(tag)
+
+def should_update_ad(current_ad: Dict, new_price: float, new_quantity: int) -> bool:
+    current_price = float(current_ad.get("price", 0))
+    current_quantity = float(current_ad.get("quantity", 0))
+
+    return not (
+        current_price == new_price and
+        current_quantity == new_quantity
+    )
+
+def get_SELL_balance(api, token: str) -> float:
     try:
         response = api.get_current_balance(accountType="FUND")
         balances = response.get("result", {}).get("balance", [])
@@ -79,70 +93,11 @@ def get_available_balance(api, token: str) -> float:
         logger.error(f"Failed to get balance: {e}")
         return 0.0
 
-def is_auto_sell_ad(ad: Dict) -> bool:
-    return ad.get("side") == 1 and str(ad.get("remark", "")).startswith("#S")
-
-def is_auto_buy_ad(ad: Dict) -> bool:
-    return ad.get("side") == 0 and str(ad.get("remark", "")).startswith("#B")
-
-def should_update_ad(ad_id: str, new_price: float, new_quantity: int) -> bool:
-    cached = ads_cache.get(ad_id)
-    if cached:
-        if cached["price"] == new_price and cached["quantity"] == new_quantity:
-            return False
-    ads_cache[ad_id] = {
-        "price": new_price,
-        "quantity": new_quantity,
-    }
-    return True
-
-def update_sell_ads(api, config: Dict, new_price: float):
-    logger.info(f"Starting update process for SELL ads with price {new_price}")
-
-    all_ads = get_my_ads(api, config, side="SELL")
-    auto_sell_ads = [ad for ad in all_ads if is_auto_sell_ad(ad)]
-
-    if not auto_sell_ads:
-        logger.info("No auto-managed SELL ads found with tag #S")
-        return
-
-    available_balance = get_available_balance(api, config["p2p"]["token"])
-
-    if available_balance == 0:
-        logger.warning("No available balance to update SELL ads")
-        return
-
-    for ad in auto_sell_ads:
-        ad_id = ad["id"]
-        try:
-            if not should_update_ad(ad_id, new_price, available_balance):
-                logger.info(f"Skipping unchanged SELL ad {ad_id}")
-                continue
-
-            logger.info(f"Updating SELL ad {ad_id} with price {new_price} and quantity {available_balance}")
-            api.update_ad(
-                id=ad_id,
-                priceType=0,
-                premium="0",
-                price=new_price,
-                minAmount=ad["minAmount"],
-                maxAmount=ad["maxAmount"],
-                remark=ad["remark"],
-                tradingPreferenceSet=ad["tradingPreferenceSet"],
-                paymentIds=[term["id"] for term in ad.get("paymentTerms", [])],
-                actionType="MODIFY" if ad["status"] == 10 else "ACTIVE",
-                quantity=available_balance,
-                paymentPeriod=ad["paymentPeriod"]
-            )
-            logger.info(f"SELL ad {ad_id} updated successfully")
-        except Exception as e:
-            logger.error(f"Failed to update SELL ad {ad_id}: {e}")
-
-def get_buy_balance(api, config: Dict) -> float:
+def get_BUY_balance(api, config: Dict) -> float:
     try:
         total = float(config["p2p"]["total"])
         token = config["p2p"]["token"]
-        transfer_balance = get_available_balance(api, token)
+        transfer_balance = get_SELL_balance(api, token)
         orders = get_pending_orders(api, config)
         active_volume = sum(
             float(o.get("notifyTokenQuantity", 0)) for o in orders
@@ -156,45 +111,53 @@ def get_buy_balance(api, config: Dict) -> float:
         logger.error(f"Failed to calculate buy balance: {e}")
         return 0.0
 
-def update_buy_ads(api, config: Dict, new_price: float):
-    logger.info(f"Starting update process for BUY ads with price {new_price}")
+def update_auto_ads(
+    api,
+    config: Dict,
+    side: str,  # "BUY" або "SELL"
+    new_price: float,
+    available_quantity: float
+):
+    logger.info(f"Starting update process for {side} ads with price {new_price}")
 
-    all_ads = get_my_ads(api, config, side="BUY")
-    auto_buy_ads = [ad for ad in all_ads if is_auto_buy_ad(ad)]
+    all_ads = get_my_ads(api, config, side=side)
 
-    if not auto_buy_ads:
-        logger.info("No auto-managed BUY ads found with tag #B")
-        return
-
-    available_quantity = get_buy_balance(api, config)
     if available_quantity <= 0:
-        logger.warning("No available buy balance")
+        logger.warning(f"No available {side.lower()} balance")
         return
 
-    for ad in auto_buy_ads:
+    updated_any = False
+    for ad in all_ads:
+        if not is_auto_ad(ad, side):
+            continue
+
         ad_id = ad["id"]
         try:
-          current_price = float(ad["price"])
-          current_quantity = float(ad["quantity"])
-          if current_price == new_price and current_quantity == available_quantity:
-              logger.info(f"Skipping unchanged BUY ad {ad_id} (price and quantity already match)")
-              continue
+            current_price = float(ad["price"])
+            current_quantity = float(ad["quantity"])
+            if current_price == new_price and current_quantity == available_quantity:
+                logger.info(f"Skipping unchanged {side} ad {ad_id}")
+                continue
 
-          logger.info(f"Updating BUY ad {ad_id} with price {new_price} and quantity {available_quantity}")
-          api.update_ad(
-              id=ad_id,
-              priceType=0,
-              premium="0",
-              price=new_price,
-              minAmount=ad["minAmount"],
-              maxAmount=ad["maxAmount"],
-              remark=ad["remark"],
-              tradingPreferenceSet=ad["tradingPreferenceSet"],
-              paymentIds=[term["id"] for term in ad.get("paymentTerms", [])],
-              actionType="MODIFY" if ad["status"] == 10 else "ACTIVE",
-              quantity=available_quantity,
-              paymentPeriod=ad["paymentPeriod"]
-          )
-          logger.info(f"BUY ad {ad_id} updated successfully")
+            logger.info(f"Updating {side} ad {ad_id} with price {new_price} and quantity {available_quantity}")
+            api.update_ad(
+                id=ad_id,
+                priceType=0,
+                premium="0",
+                price=new_price,
+                minAmount=ad["minAmount"],
+                maxAmount=ad["maxAmount"],
+                remark=ad["remark"],
+                tradingPreferenceSet=ad["tradingPreferenceSet"],
+                paymentIds=[term["id"] for term in ad.get("paymentTerms", [])],
+                actionType="MODIFY" if ad["status"] == 10 else "ACTIVE",
+                quantity=available_quantity,
+                paymentPeriod=ad["paymentPeriod"]
+            )
+            logger.info(f"{side} ad {ad_id} updated successfully")
+            updated_any = True
         except Exception as e:
-            logger.error(f"Failed to update BUY ad {ad_id}: {e}")
+            logger.error(f"Failed to update {side} ad {ad_id}: {e}")
+
+    if not updated_any:
+        logger.info(f"No {side} ads were updated")

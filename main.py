@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from pprint import pprint
-from ads import fetch_market_ads, update_buy_ads, update_sell_ads
+from ads import fetch_market_ads, get_SELL_balance, get_BUY_balance, update_auto_ads
 from api_client import get_api
 from find_twice import find_price_from_config
 from orders_log import process_active_orders
@@ -28,7 +28,10 @@ async def main_loop(api):
             # --- BUY ---
             buy_ads = fetch_market_ads(api, "BUY", config)
             buy_price = find_price_from_config(buy_ads, config, "BUY")
-            update_buy_ads(api, config, new_price=round(buy_price + 0.01, 2))
+            buy_price = round(buy_price + 0.01, 2)
+            buy_quantity = get_BUY_balance(api, config)
+
+            update_auto_ads(api, config, "BUY", buy_price, buy_quantity)
             process_active_orders(api, config, "BUY")
 
             # Передаємо BUY-ціну в SELL-конфіг
@@ -37,7 +40,10 @@ async def main_loop(api):
             # --- SELL ---
             sell_ads = fetch_market_ads(api, "SELL", config)
             sell_price = find_price_from_config(sell_ads, config, "SELL")
-            update_sell_ads(api, config, new_price=round(sell_price - 0.01, 2))
+            sell_price=round(sell_price - 0.01, 2)
+            sell_quantity = get_SELL_balance(api, config["p2p"]["token"])
+            
+            update_auto_ads(api, config, "SELL", sell_price, sell_quantity)
             process_active_orders(api, config, "SELL")
 
         except Exception as e:

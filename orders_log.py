@@ -4,8 +4,8 @@ from pprint import pprint
 from typing import Dict
 import uuid
 from supabase import create_client
-from config import config
-from order_utils import append_order_details, extract_payment_info, send_payment_info_to_chat
+from language_detection import detect_country_from_name
+from order_utils import extract_payment_info, send_payment_info_to_chat
 
 logging.basicConfig(level=logging.INFO)
 
@@ -113,6 +113,9 @@ def process_active_orders(api, config, side: str):
             # extracting and sending payment info to BUY order chat
             order_details = api.get_order_details(orderId=order_id)["result"]
             payment_info = extract_payment_info(order_details, side)
+            counterparty_full_name = order_details.get("sellerRealName" if side == "BUY" else "buyerRealName", "")
+            country_code = detect_country_from_name(counterparty_full_name)
+            pprint(f'{counterparty_full_name} --- {country_code}')
 
             logging.info(f"Handling order {order_id} with status {status}")
             log = get_or_create_order_log(supabase, order)

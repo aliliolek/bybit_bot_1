@@ -7,3 +7,4 @@ def get_api(config):
         api_secret=config["bybit"]["api_secret"],
         recv_window=20000
     )
+
