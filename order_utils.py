@@ -104,7 +104,7 @@ def send_payment_info_to_chat(api, order_id, info: dict):
         except Exception as e:
             logging.exception(f"[CHAT] Failed to send {key}: {e}")
 
-def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str = "DEFAULT"):
+def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str = "EN"):
     """Send the full payment info as a single block message based on country_code."""
     with open("config/payment_labels.yaml", encoding="utf-8") as f:
       FIELD_LABELS = yaml.safe_load(f)
@@ -113,16 +113,17 @@ def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str
         logging.warning("[CHAT] No order_id in info")
         return
 
-    labels = FIELD_LABELS.get(country_code.upper(), FIELD_LABELS["DEFAULT"])
+    labels = FIELD_LABELS.get(country_code.upper(), FIELD_LABELS["EN"])
 
     lines = [
-        f"{labels['recipient']}: {info.get('full_name', 'Not Found')}",
-        f"{labels['account']}: {info.get('iban', 'Not Found')}",
+        f"{labels['recipient']}:\n{info.get('full_name', 'Not Found')}",
+        f"{labels['account']}:\n{info.get('iban', 'Not Found')}",
         f"{labels['or']}",
-        f"{labels['phone']}: {info.get('phone', 'Not Found')}",
-        f"{labels['title']}: {info.get('order_id', 'Not Found')}"
+        f"{labels['phone']}:\n{info.get('phone', 'Not Found')}",
+        f"{labels['title']}:\n{info.get('order_id', 'Not Found')}"
     ]
-    message = "\n".join(lines)
+    message = "\n\n".join(lines)
+
 
     try:
         api.send_chat_message(
