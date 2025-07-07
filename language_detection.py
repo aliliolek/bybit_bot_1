@@ -22,7 +22,7 @@ POLISH_LETTERS = {'Ą', 'Ć', 'Ę', 'Ł', 'Ń', 'Ó', 'Ś', 'Ź', 'Ż'}
 NAMES_BY_COUNTRY = load_country_name_map("./config/names_by_country.yaml")
 HEURISTIC_PATTERNS = {
     'BY pattern !!!': ['*ENKA', '*AU', '*YEU', '*OU', '*OUSK*', '*DZI*', 'TSI*', '*STS*'],
-    'UA pattern !!!': ['*YSHYN', '*ENKO', '*SKYI', '*IV'],
+    'UA pattern !!!': ['*YSHYN', '*ENKO', '*SKYI', '*IV', '*CЬК*', '*ЗЬК*', '*ЦЬК*'],
 }
 
 
@@ -69,4 +69,4 @@ def detect_country_from_name(full_name: str, name_map: Dict[str, Set[str]] = NAM
     if matched_by_name:
         return matched_by_name
 
-    return 'UNDEFINED'
+    return 'EN'

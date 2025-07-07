@@ -1,0 +1,27 @@
+UA:
+  recipient: 'Назва отримувача'
+  account: 'Номер рахунку'
+  or: 'АБО'
+  phone: 'Номер телефону (BLIK)'
+  title: 'Призначення платежу (tytuł)'
+
+PL:
+  recipient: 'Nazwa odbiorcy'
+  account: 'Numer konta'
+  or: 'ALBO'
+  phone: 'Numer telefonu (BLIK)'
+  title: 'Tytuł przelewu'
+
+BY:
+  recipient: 'Імя атрымальніка'
+  account: 'Нумар рахунку'
+  or: 'АЛЬБО'
+  phone: 'Нумар тэлефона (BLIK)'
+  title: 'Прызначэнне (tytuł, название, сообщение, комментарий)'
+
+EN:
+  recipient: 'Recipient name'
+  account: 'Account number (numer konta / numer rachunku / IBAN)'
+  or: 'OR'
+  phone: 'Phone number (BLIK)'
+  title: 'Payment title (tytuł)'

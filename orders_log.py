@@ -5,7 +5,7 @@ from typing import Dict
 import uuid
 from supabase import create_client
 from language_detection import detect_country_from_name
-from order_utils import extract_payment_info, send_payment_info_to_chat
+from order_utils import extract_payment_info, send_payment_block_to_chat, send_payment_info_to_chat
 
 logging.basicConfig(level=logging.INFO)
 
@@ -109,6 +109,7 @@ def process_active_orders(api, config, side: str):
         try:
             order_id = order["id"]
             status = order["status"]
+            currency = order.get("currencyId")
 
             # extracting and sending payment info to BUY order chat
             order_details = api.get_order_details(orderId=order_id)["result"]
@@ -128,7 +129,11 @@ def process_active_orders(api, config, side: str):
             if status == 10 and not log["msg_status_10_sent"]:
               # send_tutorial_photos_for_sell(api, order_id)
               if not log["marked_paid"]:
-                send_payment_info_to_chat(api, order_id, payment_info)
+                if currency == "PLN":
+                    send_payment_info_to_chat(api, order_id, payment_info)
+                    send_payment_block_to_chat(api, order_id, payment_info, country_code)
+                else:
+                    logging.info(f"[CHAT] Skipping payment data for order {order_id} — currency: {currency}")
 
               logging.info(f"Sending status_10 message for order {order_id}")
               messages = config["messages"].get("status_10", {}).get(side, {})

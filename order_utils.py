@@ -6,6 +6,7 @@ import re
 from typing import Optional
 import uuid
 from translitua import translit
+import yaml
 
 def normalize_numeric_string(text: str) -> str:
     """
@@ -85,8 +86,6 @@ def extract_payment_info(order: dict, direction: str) -> dict:
         "order_id": f"#{order['id']}" if "id" in order else "Not Found",
     }
 
-
-
 def send_payment_info_to_chat(api, order_id, info: dict):
     if not order_id:
         logging.warning("[CHAT] No order_id in info")
@@ -105,6 +104,36 @@ def send_payment_info_to_chat(api, order_id, info: dict):
         except Exception as e:
             logging.exception(f"[CHAT] Failed to send {key}: {e}")
 
+def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str = "DEFAULT"):
+    """Send the full payment info as a single block message based on country_code."""
+    with open("config/payment_labels.yaml", encoding="utf-8") as f:
+      FIELD_LABELS = yaml.safe_load(f)
+
+    if not order_id:
+        logging.warning("[CHAT] No order_id in info")
+        return
+
+    labels = FIELD_LABELS.get(country_code.upper(), FIELD_LABELS["DEFAULT"])
+
+    lines = [
+        f"{labels['recipient']}: {info.get('full_name', 'Not Found')}",
+        f"{labels['account']}: {info.get('iban', 'Not Found')}",
+        f"{labels['or']}",
+        f"{labels['phone']}: {info.get('phone', 'Not Found')}",
+        f"{labels['title']}: {info.get('order_id', 'Not Found')}"
+    ]
+    message = "\n".join(lines)
+
+    try:
+        api.send_chat_message(
+            message=message,
+            contentType="str",
+            orderId=order_id,
+            msgUuid=uuid.uuid4().hex
+        )
+        logging.info(f"[CHAT] Sent payment block for {country_code} to order {order_id}")
+    except Exception as e:
+        logging.exception(f"[CHAT] Failed to send payment block: {e}")
 
 def append_order_details(order_result: dict, filename: str = "oRDERdetAILS.json"):
     # Якщо файл існує — зчитай поточний вміст
