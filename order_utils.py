@@ -120,7 +120,7 @@ def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str
         f"{labels['account']}:\n{info.get('iban', 'Not Found')}",
         f"{labels['or']}",
         f"{labels['phone']}:\n{info.get('phone', 'Not Found')}",
-        f"{labels['title']}:\n{info.get('order_id', 'Not Found')}"
+        f"{labels['title']}:\n zakup USDT na Bybit {info.get('order_id', 'Not Found')}"
     ]
     message = "\n\n".join(lines)
 
