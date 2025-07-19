@@ -83,7 +83,7 @@ def extract_payment_info(order: dict, direction: str) -> dict:
         "phone": find_phone(),
         "full_name": translit(term.get("realName", "").strip()) or "Not Found",
         "iban": find_iban(),
-        "order_id": f"#{order['id']}" if "id" in order else "Not Found",
+        "order_id": f"zakup usdt na bybit #{order['id']}" if "id" in order else "Not Found",
     }
 
 def send_payment_info_to_chat(api, order_id, info: dict):
