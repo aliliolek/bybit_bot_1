@@ -9,7 +9,20 @@ import json
 api = get_api(config)
 
 def test_function():
-  pprint(api.get_order_details(orderId='1941985584651649024')["result"])
+  sell_ads = api.get_online_ads(
+      tokenId="USDT",
+      currencyId="PLN",
+      side="1",
+      page="1",
+      size="100",
+  )
+    
+  ads_list = sell_ads.get("result", {}).get("items", [])
+
+  for ad in ads_list:
+      if float(ad.get("quantity", 0)) > 500:
+        if float(ad.get("minAmount", 0)) < 300:
+          pprint(f"{ad['nickName']} - {ad['price']} {ad['payments']}")
 
 
 test_function()
