@@ -23,6 +23,8 @@ def _is_ad_acceptable(ad: dict, cfg: dict) -> bool:
             'name': 'Minimum Total Orders',
             'is_active': lambda ad, cfg: cfg.get('check_orderNum', False),
             'is_valid': lambda ad, cfg: to_float(ad.get('recentOrderNum', 0)) > to_float(cfg.get('min_total_orders', 0)),
+            'ad_value': lambda ad, cfg: ad.get('recentOrderNum', 0),
+            'cfg_value': lambda ad, cfg: cfg.get('min_total_orders', 0),
         },
         {
             'name': 'Payment Methods',
@@ -35,31 +37,46 @@ def _is_ad_acceptable(ad: dict, cfg: dict) -> bool:
                     len(cfg.get('allowed_payment_types', []))
                 )
             ),
+            'ad_value': lambda ad, cfg: ad.get('payments', []),
+            'cfg_value': lambda ad, cfg: {
+                'allowed_payment_types': cfg.get('allowed_payment_types', []),
+                'min_payment_matches': cfg.get('min_payment_matches', 1),
+            },
         },
         {
             'name': 'Minimum Balance',
             'is_active': lambda ad, cfg: cfg.get('check_min_balance', False),
             'is_valid': lambda ad, cfg: to_float(ad.get('lastQuantity')) >= to_float(cfg.get('min_amount_threshold', 0)),
+            'ad_value': lambda ad, cfg: ad.get('lastQuantity'),
+            'cfg_value': lambda ad, cfg: cfg.get('min_amount_threshold', 0),
         },
         {
             'name': 'Minimum Limit',
             'is_active': lambda ad, cfg: cfg.get('check_min_limit', False),
             'is_valid': lambda ad, cfg: to_float(ad.get('minAmount')) <= to_float(cfg.get('min_limit_threshold', float('inf'))),
+            'ad_value': lambda ad, cfg: ad.get('minAmount'),
+            'cfg_value': lambda ad, cfg: cfg.get('min_limit_threshold', float('inf')),
         },
         {
             'name': 'Limit Range',
             'is_active': lambda ad, cfg: cfg.get('check_limit_range', False),
             'is_valid': lambda ad, cfg: (to_float(ad.get('maxAmount')) - to_float(ad.get('minAmount'))) >= to_float(cfg.get('min_limit_range', 0)),
+            'ad_value': lambda ad, cfg: to_float(ad.get('maxAmount')) - to_float(ad.get('minAmount')),
+            'cfg_value': lambda ad, cfg: cfg.get('min_limit_range', 0),
         },
         {
             'name': 'Advertiser Register Time',
             'is_active': lambda ad, cfg: cfg.get('check_register_days', False) and ad.get('tradingPreferenceSet', {}).get('hasRegisterTime') == 1,
             'is_valid': lambda ad, cfg: to_float(ad.get('tradingPreferenceSet', {}).get('registerTimeThreshold')) <= to_float(cfg.get('min_register_days', float('inf'))),
+            'ad_value': lambda ad, cfg: ad.get('tradingPreferenceSet', {}).get('registerTimeThreshold'),
+            'cfg_value': lambda ad, cfg: cfg.get('min_register_days', float('inf')),
         },
         {
             'name': 'Advertiser Order Count',
             'is_active': lambda ad, cfg: cfg.get('check_min_orders', False) and ad.get('tradingPreferenceSet', {}).get('hasOrderFinishNumberDay30') == 1,
             'is_valid': lambda ad, cfg: to_float(ad.get('tradingPreferenceSet', {}).get('orderFinishNumberDay30')) <= to_float(cfg.get('min_order_count', float('inf'))),
+            'ad_value': lambda ad, cfg: ad.get('tradingPreferenceSet', {}).get('orderFinishNumberDay30'),
+            'cfg_value': lambda ad, cfg: cfg.get('min_order_count', float('inf')),
         },
         {
             'name': 'Country Whitelist',
@@ -68,6 +85,8 @@ def _is_ad_acceptable(ad: dict, cfg: dict) -> bool:
                 ad.get('tradingPreferenceSet', {}).get('hasNationalLimit') != 1 or
                 not set(cfg.get('country_whitelist', [])).isdisjoint(set(ad.get('tradingPreferenceSet', {}).get('nationalLimit', [])))
             ),
+            'ad_value': lambda ad, cfg: ad.get('tradingPreferenceSet', {}).get('nationalLimit', []),
+            'cfg_value': lambda ad, cfg: cfg.get('country_whitelist', []),
         },
         {
             'name': 'Remark Blacklist',
@@ -76,11 +95,15 @@ def _is_ad_acceptable(ad: dict, cfg: dict) -> bool:
                 word in ad.get('remark', '').lower()
                 for word in cfg.get('remark_blacklist', [])
             ),
+            'ad_value': lambda ad, cfg: ad.get('remark', ''),
+            'cfg_value': lambda ad, cfg: cfg.get('remark_blacklist', []),
         },
         {
             'name': 'Nickname Blacklist',
             'is_active': lambda ad, cfg: cfg.get('check_exclude_nicknames', False),
             'is_valid': lambda ad, cfg: ad.get('nickName') not in cfg.get('exclude_nicknames', []),
+            'ad_value': lambda ad, cfg: ad.get('nickName'),
+            'cfg_value': lambda ad, cfg: cfg.get('exclude_nicknames', []),
         },
         {
             'name': 'Min Price Delta from BUY (SELL only)',
@@ -88,6 +111,11 @@ def _is_ad_acceptable(ad: dict, cfg: dict) -> bool:
             'is_valid': lambda ad, cfg: (
                 to_float(ad.get("price", 0)) >= to_float(cfg.get("reference_buy_price", 0)) * (1 + to_float(cfg.get("min_gap_percent", 0.015)))
             ),
+            'ad_value': lambda ad, cfg: ad.get('price'),
+            'cfg_value': lambda ad, cfg: {
+                'reference_buy_price': cfg.get('reference_buy_price', 0),
+                'min_gap_percent': cfg.get('min_gap_percent', 0.015),
+            },
         },
     ]
 
@@ -95,6 +123,14 @@ def _is_ad_acceptable(ad: dict, cfg: dict) -> bool:
     for rule in ALL_RULES:
         if rule['is_active'](ad, cfg):
             if not rule['is_valid'](ad, cfg):
+                ad_val = rule.get('ad_value', lambda a, c: None)(ad, cfg)
+                cfg_val = rule.get('cfg_value', lambda a, c: None)(ad, cfg)
+                logger.info(
+                    "Rule '%s' failed: ad value=%s, config=%s",
+                    rule['name'],
+                    ad_val,
+                    cfg_val,
+                )
                 return False
     return True
 
