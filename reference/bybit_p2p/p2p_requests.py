@@ -1,3 +1,4 @@
+# Копія для ознайомлення, не імпортувати.
 from ._p2p_manager import P2PManager
 from ._p2p_helper import P2PMethods
 
