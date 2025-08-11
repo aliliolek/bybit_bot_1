@@ -142,15 +142,34 @@ def _find_neighbor_price(ad, all_ads, gap, side_code):
             continue
         neighbor_price = float(neighbor['price'])
 
-        if side_code == 1 and neighbor_price >= ad_price and (neighbor_price - ad_price) <= gap:
-            return True
-        elif side_code == 0 and neighbor_price <= ad_price and (ad_price - neighbor_price) <= gap:
-            return True
-    return False
+        if side_code == 1:
+            price_diff = neighbor_price - ad_price
+            match = neighbor_price >= ad_price and price_diff <= gap
+        else:
+            price_diff = ad_price - neighbor_price
+            match = neighbor_price <= ad_price and price_diff <= gap
+
+        logger.info(
+            "Neighbor check: %s vs %s | diff: %.8f | match: %s",
+            ad_owner,
+            neighbor['nickName'],
+            price_diff,
+            match,
+        )
+        if match:
+            return True, neighbor
+    return False, None
+
 
 def _find_price_in_list(list_to_search, all_ads, gap, side_code):
     for ad in list_to_search:
-        if _find_neighbor_price(ad, all_ads, gap, side_code):
+        matched, neighbor = _find_neighbor_price(ad, all_ads, gap, side_code)
+        if matched:
+            logger.info(
+                "Price returned from ad %s matched with neighbor %s",
+                ad['nickName'],
+                neighbor['nickName'],
+            )
             return float(ad['price'])
     return None
 
