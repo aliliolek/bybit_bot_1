@@ -170,8 +170,8 @@ def _find_price_in_list(list_to_search, all_ads, gap, side_code):
                 ad['nickName'],
                 neighbor['nickName'],
             )
-            return float(ad['price'])
-    return None
+            return float(ad['price']), ad
+    return None, None
 
 def find_price_from_config(ads_list: list, side_config: dict, side_code: int, price_gap: float, fallback_price: float) -> float:
     filtered_ads = [ad for ad in ads_list if _is_ad_acceptable(ad, side_config)]
@@ -184,8 +184,9 @@ def find_price_from_config(ads_list: list, side_config: dict, side_code: int, pr
         logger.info(f"  - {nickname} | price: {price} | qty: {qty}")
 
     if not filtered_ads:
-      logger.warning("⚠️ No ads passed filtering, using fallback price")
-      return fallback_price
+        logger.warning("⚠️ No ads passed filtering, using fallback price")
+        logger.info(f"використано fallback | nickname: - | price: {fallback_price}")
+        return fallback_price
 
     use_target = side_config.get("check_target_nicknames", False)
     use_neighbors = side_config.get("check_price_neighbors", True)
@@ -196,23 +197,36 @@ def find_price_from_config(ads_list: list, side_config: dict, side_code: int, pr
         other_ads = [ad for ad in filtered_ads if ad['nickName'] not in target_nicknames]
 
         if use_neighbors:
-            price = _find_price_in_list(target_ads, filtered_ads, price_gap, side_code)
+            price, selected_ad = _find_price_in_list(target_ads, filtered_ads, price_gap, side_code)
             if price is not None:
+                logger.info(f"обрано з target_ads | nickname: {selected_ad['nickName']} | price: {price}")
                 return price
-            price = _find_price_in_list(other_ads, filtered_ads, price_gap, side_code)
+            price, selected_ad = _find_price_in_list(other_ads, filtered_ads, price_gap, side_code)
             if price is not None:
+                logger.info(f"обрано з інших оголошень | nickname: {selected_ad['nickName']} | price: {price}")
                 return price
         else:
             if target_ads:
-                return float(target_ads[0]['price'])
+                selected_ad = target_ads[0]
+                price = float(selected_ad['price'])
+                logger.info(f"обрано з target_ads | nickname: {selected_ad['nickName']} | price: {price}")
+                return price
             if other_ads:
-                return float(other_ads[0]['price'])
+                selected_ad = other_ads[0]
+                price = float(selected_ad['price'])
+                logger.info(f"обрано з інших оголошень | nickname: {selected_ad['nickName']} | price: {price}")
+                return price
     else:
         if use_neighbors:
-            price = _find_price_in_list(filtered_ads, filtered_ads, price_gap, side_code)
+            price, selected_ad = _find_price_in_list(filtered_ads, filtered_ads, price_gap, side_code)
             if price is not None:
+                logger.info(f"обрано з оголошень | nickname: {selected_ad['nickName']} | price: {price}")
                 return price
         else:
-            return float(filtered_ads[0]['price'])
+            selected_ad = filtered_ads[0]
+            price = float(selected_ad['price'])
+            logger.info(f"обрано з оголошень | nickname: {selected_ad['nickName']} | price: {price}")
+            return price
 
+    logger.info(f"використано fallback | nickname: - | price: {fallback_price}")
     return fallback_price
