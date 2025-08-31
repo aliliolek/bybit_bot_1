@@ -187,23 +187,51 @@ def send_payment_info_to_chat(api, order_id, info: dict):
         logging.warning("[CHAT] No order_id in info")
         return
 
-    # Відправляємо прості поля як раніше
-    simple_fields = ["bank", "full_name", "order_id"]
-    for key in simple_fields:
-        value = info.get(key, "Not Found")
-        message = str(value) if value else f"{key}: Not Found"
-        try:
-            api.send_chat_message(
-                message=message,
-                contentType="str",
-                orderId=order_id,
-                msgUuid=uuid.uuid4().hex
-            )
-            logging.info(f"[CHAT] Sent {key} → {message}")
-        except Exception as e:
-            logging.exception(f"[CHAT] Failed to send {key}: {e}")
+    # ПРАВИЛЬНИЙ ПОРЯДОК: bank → full_name → iban → phone → order_id
+    
+    # 1. Відправляємо назву банку
+    bank_name = info.get("bank", "Not Found")
+    try:
+        api.send_chat_message(
+            message=bank_name,
+            contentType="str",
+            orderId=order_id,
+            msgUuid=uuid.uuid4().hex
+        )
+        logging.info(f"[CHAT] Sent bank → {bank_name}")
+    except Exception as e:
+        logging.exception(f"[CHAT] Failed to send bank: {e}")
+    
+    # 2. Відправляємо назву отримувача
+    full_name = info.get("full_name", "Not Found")
+    try:
+        api.send_chat_message(
+            message=full_name,
+            contentType="str",
+            orderId=order_id,
+            msgUuid=uuid.uuid4().hex
+        )
+        logging.info(f"[CHAT] Sent full_name → {full_name}")
+    except Exception as e:
+        logging.exception(f"[CHAT] Failed to send full_name: {e}")
 
-    # ОКРЕМО обробляємо телефони - кожен окремим повідомленням
+    # 3. Відправляємо IBAN - кожен окремим повідомленням
+    ibans = info.get("iban", "Not Found") 
+    if ibans != "Not Found":
+        iban_list = [iban.strip() for iban in ibans.split(",")]
+        for i, iban in enumerate(iban_list):
+            try:
+                api.send_chat_message(
+                    message=iban,
+                    contentType="str",
+                    orderId=order_id,
+                    msgUuid=uuid.uuid4().hex
+                )
+                logging.info(f"[CHAT] Sent IBAN {i+1} → {iban}")
+            except Exception as e:
+                logging.exception(f"[CHAT] Failed to send IBAN {iban}: {e}")
+
+    # 4. Відправляємо телефони - кожен окремим повідомленням
     phones = info.get("phone", "Not Found")
     if phones != "Not Found":
         phone_list = [p.strip() for p in phones.split(",")]
@@ -219,21 +247,18 @@ def send_payment_info_to_chat(api, order_id, info: dict):
             except Exception as e:
                 logging.exception(f"[CHAT] Failed to send phone {phone}: {e}")
 
-    # ОКРЕМО обробляємо IBAN - кожен окремим повідомленням
-    ibans = info.get("iban", "Not Found") 
-    if ibans != "Not Found":
-        iban_list = [iban.strip() for iban in ibans.split(",")]
-        for i, iban in enumerate(iban_list):
-            try:
-                api.send_chat_message(
-                    message=iban,
-                    contentType="str",
-                    orderId=order_id,
-                    msgUuid=uuid.uuid4().hex
-                )
-                logging.info(f"[CHAT] Sent IBAN {i+1} → {iban}")
-            except Exception as e:
-                logging.exception(f"[CHAT] Failed to send IBAN {iban}: {e}")
+    # 5. Відправляємо титул (order_id)
+    order_title = info.get("order_id", "Not Found")
+    try:
+        api.send_chat_message(
+            message=order_title,
+            contentType="str",
+            orderId=order_id,
+            msgUuid=uuid.uuid4().hex
+        )
+        logging.info(f"[CHAT] Sent order_id → {order_title}")
+    except Exception as e:
+        logging.exception(f"[CHAT] Failed to send order_id: {e}")
 
 def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str = "EN", token_name: str = "USDT"):
     """Send the full payment info as a single block message based on country_code."""
