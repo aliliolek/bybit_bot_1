@@ -122,7 +122,6 @@ def find_price_from_config(ads_list: list, side_config: dict, side_code: int, pr
     filtered_ads = [ad for ad in ads_list if _is_ad_acceptable(ad, side_config)]
 
     logger.info(f"🧾 Filtered ads ({'BUY' if side_code == 0 else 'SELL'}):")
-    logger.info(f"✅ {len(filtered_ads)} ads passed filtering out of {len(ads_list)} total")
     for ad in filtered_ads:
         nickname = ad.get("nickName", "?")
         price = ad.get("price", "?")

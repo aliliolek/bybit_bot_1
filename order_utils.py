@@ -36,55 +36,94 @@ def extract_polish_phone(text: str) -> Optional[str]:
         return digits[2:]
     return None
 
-def extract_payment_info(order: dict, direction: str) -> dict:
-    fields = ["bankName", "branchName", "accountNo", "payMessage"]
+def extract_payment_info(order: dict, direction: str, token_name: str = "USDT") -> list:
+    """
+    Витягує всі унікальні способи оплати з ордеру.
+    Повертає список унікальних payment info об'єктів.
+    """
+    # ВСІ можливі поля для пошуку
+    all_fields = [
+        "bankName", "branchName", "accountNo", "payMessage", 
+        "mobile", "concept", "clabe", "firstName", "lastName",
+        "paymentExt1", "paymentExt2", "paymentExt3", 
+        "paymentExt4", "paymentExt5", "paymentExt6"
+    ]
+    
     terms = order.get("paymentTermList", [])
+    logging.info(f"[PAYMENT_INFO] Order {order.get('id')}: found {len(terms)} payment terms")
+    
+    if not terms:
+        logging.warning(f"[PAYMENT_INFO] No payment terms for order {order.get('id')}")
+        return []
+    
+    unique_payments = []
+    seen_combinations = set()  # Для перевірки унікальності
+    
+    # ВИПРАВЛЕННЯ: Обробляємо ВСІ терміни без фільтрації по назві банку
+    for i, term in enumerate(terms):
+        payment_name = term.get("paymentConfigVo", {}).get("paymentName", "Unknown")
+        logging.info(f"[PAYMENT_INFO] Processing term {i}: {payment_name} (type: {term.get('paymentType')})")
+        
+        def find_iban_in_term():
+            for f in all_fields:  # ✅ Шукаємо в УСІХ полях
+                v = term.get(f, "")
+                result = extract_iban(v)
+                if result:
+                    logging.info(f"[PAYMENT_INFO] Found IBAN in field '{f}': {result}")
+                    return result
+            logging.warning(f"[PAYMENT_INFO] No IBAN found in term {i}")
+            return "Not Found"
 
-    term = None
-
-    if direction == "SELL":
-        # only PKO Bank / Bank Transfer
-        for t in terms:
-            name = t.get("paymentConfigVo", {}).get("paymentName", "")
-            if name in ["PKO Bank", "Bank Transfer"]:
-                term = t
-                break
-    else:  # BUY
-        if terms:
-            term = terms[0]
-
-    if not term:
-        return {
-            "bank": "Not Found",
-            "phone": "Not Found",
-            "full_name": "Not Found",
-            "iban": "Not Found",
-            "order_id": f"#{order['id']}" if "id" in order else "Not Found",
+        def find_phone_in_term():
+            for f in all_fields:  # ✅ Шукаємо в УСІХ полях
+                v = term.get(f, "")
+                result = extract_polish_phone(v)
+                if result:
+                    logging.info(f"[PAYMENT_INFO] Found phone in field '{f}': {result}")
+                    return result
+            logging.warning(f"[PAYMENT_INFO] No phone found in term {i}")
+            return "Not Found"
+        
+        # Витягуємо дані
+        iban = find_iban_in_term()
+        phone = find_phone_in_term()
+        real_name = translit(term.get("realName", "").strip()) or "Not Found"
+        
+        # ВИПРАВЛЕННЯ: Різні правила для назви банку
+        if direction == "SELL":
+            bank_name = "PKO Bank"  # ✅ Хардкод для SELL
+        else:  # BUY
+            bank_name = term.get("paymentConfigVo", {}).get("paymentName", "Not Found")  # ✅ Реальна назва для BUY
+        
+        # Створюємо комбінацію для перевірки унікальності (ПІСЛЯ нормалізації)
+        combination_key = (iban, phone, real_name)  # Без bank_name, бо для SELL воно завжди PKO
+        
+        # Перевіряємо унікальність
+        if combination_key in seen_combinations:
+            logging.info(f"[PAYMENT_INFO] Term {i} is duplicate, skipping")
+            continue
+        
+        # Пропускаємо якщо немає корисних даних
+        if iban == "Not Found" and phone == "Not Found":
+            logging.info(f"[PAYMENT_INFO] Term {i} has no useful data (no IBAN, no phone), skipping")
+            continue
+            
+        seen_combinations.add(combination_key)
+        
+        # Додаємо унікальний спосіб оплати
+        payment_info = {
+            "bank": bank_name,
+            "phone": phone,
+            "full_name": real_name,
+            "iban": iban,
+            "order_id": f"zakup {token_name.lower()} na bybit #{order['id']}" if "id" in order else "Not Found",
         }
-
-    def find_iban():
-        for f in fields:
-            v = term.get(f, "")
-            result = extract_iban(v)
-            if result:
-                return result
-        return "Not Found"
-
-    def find_phone():
-        for f in fields:
-            v = term.get(f, "")
-            result = extract_polish_phone(v)
-            if result:
-                return result
-        return "Not Found"
-
-    return {
-        "bank": term.get("paymentConfigVo", {}).get("paymentName", "Not Found"),
-        "phone": find_phone(),
-        "full_name": translit(term.get("realName", "").strip()) or "Not Found",
-        "iban": find_iban(),
-        "order_id": f"zakup usdt na bybit #{order['id']}" if "id" in order else "Not Found",
-    }
+        
+        unique_payments.append(payment_info)
+        logging.info(f"[PAYMENT_INFO] Added unique payment method {len(unique_payments)}: {payment_info}")
+    
+    logging.info(f"[PAYMENT_INFO] Final result: {len(unique_payments)} unique payment methods for order {order.get('id')}")
+    return unique_payments
 
 def send_payment_info_to_chat(api, order_id, info: dict):
     if not order_id:
@@ -104,7 +143,7 @@ def send_payment_info_to_chat(api, order_id, info: dict):
         except Exception as e:
             logging.exception(f"[CHAT] Failed to send {key}: {e}")
 
-def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str = "EN"):
+def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str = "EN", token_name: str = "USDT"):
     """Send the full payment info as a single block message based on country_code."""
     with open("config/payment_labels.yaml", encoding="utf-8") as f:
       FIELD_LABELS = yaml.safe_load(f)
@@ -120,7 +159,7 @@ def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str
         f"{labels['account']}:\n{info.get('iban', 'Not Found')}",
         f"{labels['or']}",
         f"{labels['phone']}:\n{info.get('phone', 'Not Found')}",
-        f"{labels['title']}:\n zakup USDT na Bybit {info.get('order_id', 'Not Found')}"
+        f"{labels['title']}:\n zakup {token_name.lower()} na Bybit {info.get('order_id', 'Not Found')}"
     ]
     message = "\n\n".join(lines)
 

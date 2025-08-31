@@ -35,12 +35,12 @@ async def main_loop(api):
             my_ads_buy = get_my_ads(api, config, "BUY")
             quantity_buy = get_BUY_balance(api, token, total)
 
-            price = None
-
             for ad in my_ads_buy:
                 if not has_flag(ad, "#p") and not has_flag(ad, "#q"):
                     continue
-
+                    
+                price = None
+                
                 if has_flag(ad, "#p"):
                     payments = [term["paymentType"] for term in ad.get("paymentTerms", [])]
 
@@ -75,7 +75,9 @@ async def main_loop(api):
                 if not has_flag(ad, "#p") and not has_flag(ad, "#q"):
                     continue
 
+                # ВИПРАВЛЕННЯ: Ініціалізуємо price для кожного оголошення
                 price = None
+                
                 if has_flag(ad, "#p"):
                     payments = [term["paymentType"] for term in ad.get("paymentTerms", [])]
 

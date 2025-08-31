@@ -101,6 +101,9 @@ def process_active_orders(api, config, side: str):
         logging.error(f"Failed to fetch orders: {e}")
         return
 
+    # Отримуємо токен з конфігурації
+    token_name = config["p2p"]["token"]
+    
     for order in orders:
         if not isinstance(order, dict):
             logging.error(f"Invalid order format: {order}")
@@ -113,7 +116,9 @@ def process_active_orders(api, config, side: str):
 
             # extracting and sending payment info to BUY order chat
             order_details = api.get_order_details(orderId=order_id)["result"]
-            payment_info = extract_payment_info(order_details, side)
+
+            # ОНОВЛЕНО: Отримуємо список унікальних способів оплати
+            payment_info_list = extract_payment_info(order_details, side, token_name)
             counterparty_full_name = order_details.get("sellerRealName" if side == "BUY" else "buyerRealName", "")
             country_code = detect_country_from_name(counterparty_full_name)
             pprint(f'{counterparty_full_name} --- {country_code}')
@@ -127,13 +132,17 @@ def process_active_orders(api, config, side: str):
              f"marked_paid={log.get('marked_paid')}")
 
             if status == 10 and not log["msg_status_10_sent"]:
-              # send_tutorial_photos_for_sell(api, order_id)
               if not log["marked_paid"]:
                 if currency == "PLN":
-                    send_payment_info_to_chat(api, order_id, payment_info)
-                    send_payment_block_to_chat(api, order_id, payment_info, country_code)
+                    logging.info(f"[PAYMENT_SEND] Sending {len(payment_info_list)} unique payment methods for PLN order {order_id}")
+                    
+                    # Відправляємо кожен унікальний спосіб оплати
+                    for i, payment_info in enumerate(payment_info_list):
+                        logging.info(f"[PAYMENT_SEND] Sending payment method {i+1}/{len(payment_info_list)}")
+                        send_payment_info_to_chat(api, order_id, payment_info)
+                        send_payment_block_to_chat(api, order_id, payment_info, country_code, token_name)
                 else:
-                    logging.info(f"[CHAT] Skipping payment data for order {order_id} — currency: {currency}")
+                    logging.info(f"[PAYMENT_SEND] Skipping payment data for order {order_id} — currency: {currency} (only PLN supported)")
 
               logging.info(f"Sending status_10 message for order {order_id}")
               messages = config["messages"].get("status_10", {}).get(side, {})
@@ -153,7 +162,7 @@ def process_active_orders(api, config, side: str):
 
                   if not payment_terms:
                       logging.error(f"[!] No payment terms found for order {order_id}, skipping mark_as_paid")
-                      return
+                      continue
 
                   term = payment_terms[0]
                   response = api.mark_as_paid(
