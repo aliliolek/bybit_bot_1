@@ -113,6 +113,11 @@ def process_active_orders(api, config, side: str):
             order_id = order["id"]
             status = order["status"]
             currency = order.get("currencyId")
+            
+            # Пропускаємо завершені ордери (статус 30, 40, 50, etc)
+            if status not in [10, 20]:
+                logging.info(f"Skipping order {order_id} with status {status} (completed/cancelled)")
+                continue
 
             # extracting and sending payment info to BUY order chat
             order_details = api.get_order_details(orderId=order_id)["result"]
@@ -134,11 +139,11 @@ def process_active_orders(api, config, side: str):
             if status == 10 and not log["msg_status_10_sent"]:
               if not log["marked_paid"]:
                 if currency == "PLN":
-                    logging.info(f"[PAYMENT_SEND] Sending {len(payment_info)} unique payment methods for PLN order {order_id}")
+                    logging.info(f"[PAYMENT_SEND] Sending payment info for PLN order {order_id}")
                     
                     # Відправляємо як і раніше - окремими повідомленнями + блоком
-                    send_payment_info_to_chat(api, order_id, payment_info)  # 5 окремих повідомлень
-                    send_payment_block_to_chat(api, order_id, payment_info, country_code, token_name)  # 1 блок
+                    send_payment_info_to_chat(api, order_id, payment_info)
+                    send_payment_block_to_chat(api, order_id, payment_info, country_code, token_name)
                 else:
                     logging.info(f"[PAYMENT_SEND] Skipping payment data for order {order_id} — currency: {currency} (only PLN supported)")
 

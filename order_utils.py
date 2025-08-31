@@ -36,10 +36,10 @@ def extract_polish_phone(text: str) -> Optional[str]:
         return digits[2:]
     return None
 
-def extract_payment_info(order: dict, direction: str, token_name: str = "USDT") -> list:
+def extract_payment_info(order: dict, direction: str, token_name: str = "USDT") -> dict:
     """
-    Витягує всі унікальні способи оплати з ордеру.
-    Повертає список унікальних payment info об'єктів.
+    Витягує та агрегує всі способи оплати в один об'єкт.
+    Повертає один payment info з усіма унікальними даними.
     """
     # ВСІ можливі поля для пошуку
     all_fields = [
@@ -54,76 +54,75 @@ def extract_payment_info(order: dict, direction: str, token_name: str = "USDT") 
     
     if not terms:
         logging.warning(f"[PAYMENT_INFO] No payment terms for order {order.get('id')}")
-        return []
-    
-    unique_payments = []
-    seen_combinations = set()  # Для перевірки унікальності
-    
-    # ВИПРАВЛЕННЯ: Обробляємо ВСІ терміни без фільтрації по назві банку
-    for i, term in enumerate(terms):
-        payment_name = term.get("paymentConfigVo", {}).get("paymentName", "Unknown")
-        logging.info(f"[PAYMENT_INFO] Processing term {i}: {payment_name} (type: {term.get('paymentType')})")
-        
-        def find_iban_in_term():
-            for f in all_fields:  # ✅ Шукаємо в УСІХ полях
-                v = term.get(f, "")
-                result = extract_iban(v)
-                if result:
-                    logging.info(f"[PAYMENT_INFO] Found IBAN in field '{f}': {result}")
-                    return result
-            logging.warning(f"[PAYMENT_INFO] No IBAN found in term {i}")
-            return "Not Found"
-
-        def find_phone_in_term():
-            for f in all_fields:  # ✅ Шукаємо в УСІХ полях
-                v = term.get(f, "")
-                result = extract_polish_phone(v)
-                if result:
-                    logging.info(f"[PAYMENT_INFO] Found phone in field '{f}': {result}")
-                    return result
-            logging.warning(f"[PAYMENT_INFO] No phone found in term {i}")
-            return "Not Found"
-        
-        # Витягуємо дані
-        iban = find_iban_in_term()
-        phone = find_phone_in_term()
-        real_name = translit(term.get("realName", "").strip()) or "Not Found"
-        
-        # ВИПРАВЛЕННЯ: Різні правила для назви банку
-        if direction == "SELL":
-            bank_name = "PKO Bank"  # ✅ Хардкод для SELL
-        else:  # BUY
-            bank_name = term.get("paymentConfigVo", {}).get("paymentName", "Not Found")  # ✅ Реальна назва для BUY
-        
-        # Створюємо комбінацію для перевірки унікальності (ПІСЛЯ нормалізації)
-        combination_key = (iban, phone, real_name)  # Без bank_name, бо для SELL воно завжди PKO
-        
-        # Перевіряємо унікальність
-        if combination_key in seen_combinations:
-            logging.info(f"[PAYMENT_INFO] Term {i} is duplicate, skipping")
-            continue
-        
-        # Пропускаємо якщо немає корисних даних
-        if iban == "Not Found" and phone == "Not Found":
-            logging.info(f"[PAYMENT_INFO] Term {i} has no useful data (no IBAN, no phone), skipping")
-            continue
-            
-        seen_combinations.add(combination_key)
-        
-        # Додаємо унікальний спосіб оплати
-        payment_info = {
-            "bank": bank_name,
-            "phone": phone,
-            "full_name": real_name,
-            "iban": iban,
+        return {
+            "bank": "PKO Bank" if direction == "SELL" else "Not Found",
+            "phone": "Not Found",
+            "full_name": "Not Found",
+            "iban": "Not Found",
             "order_id": f"zakup {token_name.lower()} na bybit #{order['id']}" if "id" in order else "Not Found",
         }
-        
-        unique_payments.append(payment_info)
-        logging.info(f"[PAYMENT_INFO] Added unique payment method {len(unique_payments)}: {payment_info}")
     
-    logging.info(f"[PAYMENT_INFO] Final result: {len(unique_payments)} unique payment methods for order {order.get('id')}")
-    return unique_payments
+    # Збираємо всі унікальні дані
+    unique_ibans = set()
+    unique_phones = set()
+    first_real_name = None
+    first_bank_name = None
+    
+    for i, term in enumerate(terms):
+        payment_name = term.get("paymentConfigVo", {}).get("paymentName", "Unknown")
+        logging.info(f"[PAYMENT_INFO] Processing term {i}: {payment_name}")
+        
+        # Шукаємо IBAN у всіх полях
+        for f in all_fields:
+            v = term.get(f, "")
+            iban = extract_iban(v)
+            if iban:
+                unique_ibans.add(iban)
+                logging.info(f"[PAYMENT_INFO] Found IBAN in term {i}, field '{f}': {iban}")
+        
+        # Шукаємо телефон у всіх полях  
+        for f in all_fields:
+            v = term.get(f, "")
+            phone = extract_polish_phone(v)
+            if phone:
+                unique_phones.add(phone)
+                logging.info(f"[PAYMENT_INFO] Found phone in term {i}, field '{f}': {phone}")
+        
+        # Беремо перше знайдене ім'я
+        if not first_real_name:
+            real_name = translit(term.get("realName", "").strip())
+            if real_name:
+                first_real_name = real_name
+                logging.info(f"[PAYMENT_INFO] Using real name: {real_name}")
+        
+        # Беремо назву банку для BUY
+        if direction == "BUY" and not first_bank_name:
+            bank_name = term.get("paymentConfigVo", {}).get("paymentName", "")
+            if bank_name:
+                first_bank_name = bank_name
+                logging.info(f"[PAYMENT_INFO] Using bank name: {bank_name}")
+    
+    # Формуємо фінальні дані
+    final_iban = ", ".join(sorted(unique_ibans)) if unique_ibans else "Not Found"
+    final_phone = ", ".join(sorted(unique_phones)) if unique_phones else "Not Found"
+    final_name = first_real_name or "Not Found"
+    
+    if direction == "SELL":
+        final_bank = "PKO Bank"  # Хардкод для SELL
+    else:  # BUY  
+        final_bank = first_bank_name or "Not Found"  # Реальна назва для BUY
+    
+    payment_info = {
+        "bank": final_bank,
+        "phone": final_phone,
+        "full_name": final_name,
+        "iban": final_iban,
+        "order_id": f"zakup {token_name.lower()} na bybit #{order['id']}" if "id" in order else "Not Found",
+    }
+    
+    logging.info(f"[PAYMENT_INFO] Final aggregated payment info with {len(unique_ibans)} IBANs, {len(unique_phones)} phones")
+    
+    return payment_info
 
 def send_payment_info_to_chat(api, order_id, info: dict):
     if not order_id:
