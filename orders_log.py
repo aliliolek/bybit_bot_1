@@ -118,7 +118,7 @@ def process_active_orders(api, config, side: str):
             order_details = api.get_order_details(orderId=order_id)["result"]
 
             # ОНОВЛЕНО: Отримуємо список унікальних способів оплати
-            payment_info_list = extract_payment_info(order_details, side, token_name)
+            payment_info = extract_payment_info(order_details, side, token_name)
             counterparty_full_name = order_details.get("sellerRealName" if side == "BUY" else "buyerRealName", "")
             country_code = detect_country_from_name(counterparty_full_name)
             pprint(f'{counterparty_full_name} --- {country_code}')
@@ -134,13 +134,11 @@ def process_active_orders(api, config, side: str):
             if status == 10 and not log["msg_status_10_sent"]:
               if not log["marked_paid"]:
                 if currency == "PLN":
-                    logging.info(f"[PAYMENT_SEND] Sending {len(payment_info_list)} unique payment methods for PLN order {order_id}")
+                    logging.info(f"[PAYMENT_SEND] Sending {len(payment_info)} unique payment methods for PLN order {order_id}")
                     
-                    # Відправляємо кожен унікальний спосіб оплати
-                    for i, payment_info in enumerate(payment_info_list):
-                        logging.info(f"[PAYMENT_SEND] Sending payment method {i+1}/{len(payment_info_list)}")
-                        send_payment_info_to_chat(api, order_id, payment_info)
-                        send_payment_block_to_chat(api, order_id, payment_info, country_code, token_name)
+                    # Відправляємо як і раніше - окремими повідомленнями + блоком
+                    send_payment_info_to_chat(api, order_id, payment_info)  # 5 окремих повідомлень
+                    send_payment_block_to_chat(api, order_id, payment_info, country_code, token_name)  # 1 блок
                 else:
                     logging.info(f"[PAYMENT_SEND] Skipping payment data for order {order_id} — currency: {currency} (only PLN supported)")
 

@@ -130,7 +130,10 @@ def send_payment_info_to_chat(api, order_id, info: dict):
         logging.warning("[CHAT] No order_id in info")
         return
 
-    for key, value in info.items():
+    # Відправляємо прості поля як раніше
+    simple_fields = ["bank", "full_name", "order_id"]
+    for key in simple_fields:
+        value = info.get(key, "Not Found")
         message = str(value) if value else f"{key}: Not Found"
         try:
             api.send_chat_message(
@@ -142,6 +145,38 @@ def send_payment_info_to_chat(api, order_id, info: dict):
             logging.info(f"[CHAT] Sent {key} → {message}")
         except Exception as e:
             logging.exception(f"[CHAT] Failed to send {key}: {e}")
+
+    # ОКРЕМО обробляємо телефони - кожен окремим повідомленням
+    phones = info.get("phone", "Not Found")
+    if phones != "Not Found":
+        phone_list = [p.strip() for p in phones.split(",")]
+        for i, phone in enumerate(phone_list):
+            try:
+                api.send_chat_message(
+                    message=phone,
+                    contentType="str",
+                    orderId=order_id,
+                    msgUuid=uuid.uuid4().hex
+                )
+                logging.info(f"[CHAT] Sent phone {i+1} → {phone}")
+            except Exception as e:
+                logging.exception(f"[CHAT] Failed to send phone {phone}: {e}")
+
+    # ОКРЕМО обробляємо IBAN - кожен окремим повідомленням
+    ibans = info.get("iban", "Not Found") 
+    if ibans != "Not Found":
+        iban_list = [iban.strip() for iban in ibans.split(",")]
+        for i, iban in enumerate(iban_list):
+            try:
+                api.send_chat_message(
+                    message=iban,
+                    contentType="str",
+                    orderId=order_id,
+                    msgUuid=uuid.uuid4().hex
+                )
+                logging.info(f"[CHAT] Sent IBAN {i+1} → {iban}")
+            except Exception as e:
+                logging.exception(f"[CHAT] Failed to send IBAN {iban}: {e}")
 
 def send_payment_block_to_chat(api, order_id: str, info: dict, country_code: str = "EN", token_name: str = "USDT"):
     """Send the full payment info as a single block message based on country_code."""
