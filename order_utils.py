@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import re
-from typing import Optional
+from typing import Optional, Dict
 import uuid
 from translitua import translit
 import yaml
@@ -36,12 +36,70 @@ def extract_polish_phone(text: str) -> Optional[str]:
         return digits[2:]
     return None
 
-def extract_payment_info(order: dict, direction: str, token_name: str = "USDT") -> dict:
+def get_my_payment_method_with_hash(api) -> Optional[Dict]:
     """
-    Витягує та агрегує всі способи оплати в один об'єкт.
-    Повертає один payment info з усіма унікальними даними.
+    Отримує мій спосіб оплати з branchName що починається з '###'
     """
-    # ВСІ можливі поля для пошуку
+    try:
+        response = api.get_user_payment_types()
+        my_payment_methods = response.get("result", [])
+        
+        for method in my_payment_methods:
+            branch_name = method.get("branchName", "")
+            if branch_name.startswith("###"):
+                logging.info(f"[MY_PAYMENT] Found payment method with ###: ID {method.get('id')}")
+                return method
+                
+        logging.warning("[MY_PAYMENT] No payment method found with branchName starting with ###")
+        return None
+        
+    except Exception as e:
+        logging.error(f"[MY_PAYMENT] Failed to get user payment types: {e}")
+        return None
+
+def extract_payment_info(api, order: dict, direction: str, token_name: str = "USDT", currency: str = "") -> dict:
+    """
+    Витягує дані про оплату:
+    - SELL + PLN: використовує мої власні дані (з branchName що починається з ###)
+    - BUY або не PLN: використовує дані з ордера як раніше
+    """
+    order_id = order.get('id', 'Unknown')
+    logging.info(f"[PAYMENT_INFO] Processing {direction} order {order_id}, currency: {currency}")
+    
+    # Для SELL в PLN використовуємо мої власні дані
+    if direction == "SELL" and currency == "PLN":
+        logging.info(f"[PAYMENT_INFO] SELL PLN detected, using my payment method")
+        my_payment = get_my_payment_method_with_hash(api)
+        
+        if my_payment:
+            # Витягуємо дані з мого способу оплати
+            my_iban = extract_iban(my_payment.get("accountNo", ""))
+            my_phone = extract_polish_phone(my_payment.get("bankName", ""))
+            my_real_name = translit(my_payment.get("realName", "").strip())
+            
+            payment_info = {
+                "bank": "PKO Bank",  # Хардкод для SELL
+                "phone": my_phone or "Not Found",
+                "full_name": my_real_name or "Not Found",
+                "iban": my_iban or "Not Found",
+                "order_id": f"zakup {token_name.lower()} na bybit #{order_id}",
+            }
+            
+            logging.info(f"[PAYMENT_INFO] Using my payment data: IBAN={my_iban}, Phone={my_phone}")
+            return payment_info
+        else:
+            logging.error(f"[PAYMENT_INFO] My payment method with ### not found, falling back to defaults")
+            return {
+                "bank": "PKO Bank",
+                "phone": "Not Found",
+                "full_name": "Not Found", 
+                "iban": "Not Found",
+                "order_id": f"zakup {token_name.lower()} na bybit #{order_id}",
+            }
+    
+    # Для BUY або не PLN - використовуємо дані з ордера як раніше
+    logging.info(f"[PAYMENT_INFO] Using order payment data for {direction} {currency}")
+    
     all_fields = [
         "bankName", "branchName", "accountNo", "payMessage", 
         "mobile", "concept", "clabe", "firstName", "lastName",
@@ -50,19 +108,19 @@ def extract_payment_info(order: dict, direction: str, token_name: str = "USDT") 
     ]
     
     terms = order.get("paymentTermList", [])
-    logging.info(f"[PAYMENT_INFO] Order {order.get('id')}: found {len(terms)} payment terms")
+    logging.info(f"[PAYMENT_INFO] Order {order_id}: found {len(terms)} payment terms")
     
     if not terms:
-        logging.warning(f"[PAYMENT_INFO] No payment terms for order {order.get('id')}")
+        logging.warning(f"[PAYMENT_INFO] No payment terms for order {order_id}")
         return {
             "bank": "PKO Bank" if direction == "SELL" else "Not Found",
             "phone": "Not Found",
             "full_name": "Not Found",
             "iban": "Not Found",
-            "order_id": f"zakup {token_name.lower()} na bybit #{order['id']}" if "id" in order else "Not Found",
+            "order_id": f"zakup {token_name.lower()} na bybit #{order_id}",
         }
     
-    # Збираємо всі унікальні дані
+    # Збираємо всі унікальні дані з ордера
     unique_ibans = set()
     unique_phones = set()
     first_real_name = None
@@ -117,7 +175,7 @@ def extract_payment_info(order: dict, direction: str, token_name: str = "USDT") 
         "phone": final_phone,
         "full_name": final_name,
         "iban": final_iban,
-        "order_id": f"zakup {token_name.lower()} na bybit #{order['id']}" if "id" in order else "Not Found",
+        "order_id": f"zakup {token_name.lower()} na bybit #{order_id}",
     }
     
     logging.info(f"[PAYMENT_INFO] Final aggregated payment info with {len(unique_ibans)} IBANs, {len(unique_phones)} phones")

@@ -122,8 +122,8 @@ def process_active_orders(api, config, side: str):
             # extracting and sending payment info to BUY order chat
             order_details = api.get_order_details(orderId=order_id)["result"]
 
-            # ОНОВЛЕНО: Отримуємо список унікальних способів оплати
-            payment_info = extract_payment_info(order_details, side, token_name)
+            # ОНОВЛЕНО: Передаємо api і currency для правильної обробки SELL PLN
+            payment_info = extract_payment_info(api, order_details, side, token_name, currency)
             counterparty_full_name = order_details.get("sellerRealName" if side == "BUY" else "buyerRealName", "")
             country_code = detect_country_from_name(counterparty_full_name)
             pprint(f'{counterparty_full_name} --- {country_code}')
